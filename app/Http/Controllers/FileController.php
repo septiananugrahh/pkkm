@@ -13,7 +13,10 @@ class FileController extends Controller
     public function store(Request $request, $nodeId)
     {
         $request->validate([
-            'files.*' => 'required|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048'
+            'files.*' => 'required|mimes:jpg,jpeg,png,pdf,doc,docx|max:20480'
+        ], [
+            'files.*.max' => 'File terlalu besar. Maksimal ukuran file adalah 20MB.',
+            'files.*.mimes' => 'Tipe file tidak didukung. Harap upload file dengan ekstensi jpg, jpeg, png, pdf, doc, atau docx.'
         ]);
 
         foreach ($request->file('files') as $file) {
@@ -29,6 +32,7 @@ class FileController extends Controller
 
         return back()->with('success', 'Files uploaded successfully');
     }
+
 
     public function destroy(File $file)
     {

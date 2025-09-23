@@ -26,7 +26,7 @@
                 </v-icon>
             </v-col>
             <v-col cols="auto" class="d-flex align-center">
-                <v-btn small text @click.stop="openEditModal(node)">
+                <!-- <v-btn small text @click.stop="openEditModal(node)">
                     <v-icon left>mdi-pencil</v-icon>
                 </v-btn>
                 <v-btn
@@ -36,8 +36,8 @@
                     @click.stop="$emit('add-child', node.id)"
                 >
                     <v-icon left>mdi-plus</v-icon>
-                </v-btn>
-                <!-- <v-btn
+                </v-btn> 
+                 <v-btn
                     small
                     text
                     color="error"
@@ -63,7 +63,7 @@
                                 v-if="node.is_completed"
                                 class="mb-4 text-green-600 font-semibold"
                             >
-                                Penilaian: Selesai
+                                Input Data: Selesai
                             </div>
 
                             <!-- Tombol Tandai Selesai -->
@@ -293,7 +293,7 @@ defineOptions({ name: "NodeItem" });
 import { ref, computed, nextTick } from "vue";
 import { useForm, router } from "@inertiajs/vue3";
 import ConfirmDialog from "@/Components/ConfirmDialog.vue"; // Sesuaikan path ini
-import axios from "axios";
+import Swal from "sweetalert2"; // Pastikan Anda sudah mengimpor SweetAlert
 
 const props = defineProps({
     node: { type: Object, required: true },
@@ -435,6 +435,19 @@ const uploadFiles = () => {
         onSuccess: () => {
             fileForm.reset();
             router.reload({ only: ["nodes"] }); // refresh node agar file terbaru muncul
+        },
+        onError: (errors) => {
+            // Menangani error yang terjadi
+            if (errors && errors.files) {
+                // Misalnya error karena ukuran file terlalu besar
+                Swal.fire({
+                    icon: "error",
+                    title: "Gagal Upload",
+                    text:
+                        errors.files[0] ||
+                        "Terjadi kesalahan saat mengupload file.",
+                });
+            }
         },
     });
 };
