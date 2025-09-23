@@ -86,7 +86,7 @@
                     </Link>
 
                     <!-- Tampilan Publik -->
-                    <Link :href="route('public.index')">
+                    <Link :href="route('show.index')">
                         <v-list-item link>
                             <v-list-item-content class="flex items-center">
                                 <v-icon>mdi-eye-outline</v-icon>

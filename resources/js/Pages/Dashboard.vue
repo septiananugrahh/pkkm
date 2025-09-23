@@ -90,7 +90,7 @@
                                 color="secondary"
                                 class="mr-4"
                                 large
-                                :href="route('public.index')"
+                                :href="route('show.index')"
                                 target="_blank"
                             >
                                 <v-icon left>mdi-eye-outline</v-icon>

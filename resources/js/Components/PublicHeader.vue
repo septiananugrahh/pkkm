@@ -7,7 +7,7 @@
             <div class="flex flex-1 items-center justify-end gap-x-6">
                 <!-- Link ke Public Index -->
                 <Link
-                    :href="route('public.index')"
+                    :href="route('show.index')"
                     class="text-sm font-semibold leading-6 text-gray-900"
                 >
                     Lihat Penilaian Publik

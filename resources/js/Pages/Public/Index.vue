@@ -64,7 +64,7 @@ watch(selectedYear, (val) => {
 
 const reload = () => {
     router.get(
-        route("public.nodes"),
+        route("show.nodes"),
         { year: selectedYear.value },
         { preserveState: true }
     );

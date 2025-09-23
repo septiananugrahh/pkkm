@@ -47,9 +47,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/nodes/{node}/toggle-complete', [NodeController::class, 'toggleComplete'])->name('nodes.toggleComplete');
 });
 
-Route::get('/public', [PublicController::class, 'index'])->name('public.index');
+Route::get('/show', [PublicController::class, 'index'])->name('show.index');
 
-Route::get('/public/nodes', [PublicController::class, 'index'])->name('public.nodes');
+Route::get('/show/nodes', [PublicController::class, 'index'])->name('show.nodes');
 
 
 require __DIR__ . '/auth.php';
