@@ -37,7 +37,7 @@
                 >
                     <v-icon left>mdi-plus</v-icon>
                 </v-btn>
-                <!-- <v-btn
+                <v-btn
                     small
                     text
                     color="error"
@@ -45,7 +45,7 @@
                     @click.stop="deleteNode(node.id)"
                 >
                     <v-icon>mdi-delete</v-icon>
-                </v-btn> -->
+                </v-btn>
             </v-col>
         </v-row>
 
@@ -222,6 +222,7 @@
     </div>
 
     <ConfirmDialog
+        :key="`delete-file-${fileIdToDelete}`"
         :visible.sync="showDeleteFileModal"
         title="Konfirmasi Hapus File"
         message="Apakah Anda yakin ingin menghapus file ini?"
@@ -229,6 +230,7 @@
     />
 
     <ConfirmDialog
+        :key="`delete-node-${nodeIdToDelete}`"
         :visible.sync="showDeleteNodeModal"
         title="Konfirmasi Hapus Node"
         message="Apakah Anda yakin ingin menghapus node ini? Ini akan menghapus semua child dan file-nya!"
@@ -294,7 +296,7 @@
 <script setup>
 defineOptions({ name: "NodeItem" });
 
-import { ref, computed } from "vue";
+import { ref, computed, nextTick } from "vue";
 import { useForm, router } from "@inertiajs/vue3";
 import ConfirmDialog from "@/Components/ConfirmDialog.vue"; // Sesuaikan path ini
 import axios from "axios";
@@ -453,48 +455,62 @@ const nodeIdToDelete = ref(null);
 
 // ... fungsi toggle, isImage, isPdf, uploadFiles, dan lainnya ...
 
-// Fungsi untuk membuka modal penghapusan file
+// Buka modal hapus file
 const openDeleteFileModal = (fileId) => {
     fileIdToDelete.value = fileId;
-    showDeleteFileModal.value = true;
+    showDeleteFileModal.value = false; // reset dulu
+    nextTick(() => {
+        showDeleteFileModal.value = true; // buka modal
+    });
 };
+// Konfirmasi hapus file
+const confirmDeleteFile = () => {
+    if (!fileIdToDelete.value) return;
 
-// Fungsi untuk membuka modal penghapusan node
+    showDeleteFileModal.value = false; // Tutup modal dulu
+
+    router.delete(route("files.destroy", fileIdToDelete.value), {
+        onSuccess: () => {
+            // Hapus file dari node.files secara lokal
+            const fileIndex = props.node.files.findIndex(
+                (f) => f.id === fileIdToDelete.value
+            );
+            if (fileIndex !== -1) props.node.files.splice(fileIndex, 1);
+        },
+        onFinish: () => {
+            fileIdToDelete.value = null;
+        },
+    });
+};
+// Buka modal hapus node
 const openDeleteNodeModal = (nodeId) => {
     nodeIdToDelete.value = nodeId;
-    showDeleteNodeModal.value = true;
+    showDeleteNodeModal.value = false; // reset dulu
+    nextTick(() => {
+        showDeleteNodeModal.value = true; // buka modal
+    });
 };
 
-// Fungsi untuk mengonfirmasi penghapusan file
-const confirmDeleteFile = () => {
-    if (fileIdToDelete.value) {
-        router.delete(route("files.destroy", fileIdToDelete.value), {
-            onSuccess: () => {
-                router.reload({ only: ["nodes"] });
-            },
-            onFinish: () => {
-                fileIdToDelete.value = null;
-            },
-        });
-    }
-};
-
-// Fungsi untuk mengonfirmasi penghapusan node
+// Konfirmasi hapus node
 const confirmDeleteNode = () => {
-    if (nodeIdToDelete.value) {
-        router.delete(route("nodes.destroy", nodeIdToDelete.value), {
-            onSuccess: () => {
-                router.reload({ only: ["nodes"] });
-            },
-            onError: (errors) => {
-                console.error("Gagal menghapus node:", errors);
-                alert("Gagal menghapus node. Lihat konsol untuk detailnya.");
-            },
-            onFinish: () => {
-                nodeIdToDelete.value = null;
-            },
-        });
-    }
+    if (!nodeIdToDelete.value) return;
+
+    showDeleteNodeModal.value = false; // Tutup modal dulu
+
+    router.delete(route("nodes.destroy", nodeIdToDelete.value), {
+        onSuccess: () => {
+            // Hapus node dari props.node.children secara lokal
+            if (props.node.children && props.node.children.length) {
+                const index = props.node.children.findIndex(
+                    (n) => n.id === nodeIdToDelete.value
+                );
+                if (index !== -1) props.node.children.splice(index, 1);
+            }
+        },
+        onFinish: () => {
+            nodeIdToDelete.value = null;
+        },
+    });
 };
 
 // Ubah event handler pada tombol hapus

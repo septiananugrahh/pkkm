@@ -24,7 +24,7 @@
             </v-btn>
             <v-text-field
                 v-model="searchQuery"
-                label="Cari Judul Node"
+                label="Cari Nama Penilaian"
                 append-icon="mdi-magnify"
                 class="mb-4"
                 clearable
@@ -48,7 +48,7 @@
                         <v-form @submit.prevent="submit">
                             <v-text-field
                                 v-model="form.title"
-                                label="Judul Node"
+                                label="Nama Penilaian"
                                 required
                             />
                         </v-form>
