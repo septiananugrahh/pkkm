@@ -148,7 +148,7 @@
                                     <div
                                         v-for="f in node.files"
                                         :key="f.id"
-                                        class="flex flex-col items-center border rounded-lg p-2 shadow-sm hover:shadow-md transition"
+                                        class="flex flex-col items-center border rounded-lg p-5 shadow-sm hover:shadow-md transition"
                                     >
                                         <!-- Thumbnail atau Icon -->
                                         <div v-if="isImage(f.file_name)">
@@ -430,6 +430,23 @@ const fileForm = useForm({
 const uploadFiles = () => {
     if (!fileForm.files || fileForm.files.length === 0) return;
 
+    // Validasi ukuran file sebelum upload
+    const maxSize = 20 * 1024 * 1024; // Maksimal 2MB
+    for (let i = 0; i < fileForm.files.length; i++) {
+        const file = fileForm.files[i];
+
+        // Cek apakah ukuran file melebihi batas maksimal
+        if (file.size > maxSize) {
+            Swal.fire({
+                icon: "error",
+                title: "File Terlalu Besar",
+                text: `File ${file.name} melebihi ukuran maksimal 20MB.`,
+            });
+            return; // Batalkan upload jika ada file yang terlalu besar
+        }
+    }
+
+    // Jika tidak ada file yang terlalu besar, lanjutkan upload
     fileForm.post(route("files.store", props.node.id), {
         forceFormData: true,
         onSuccess: () => {
@@ -437,9 +454,8 @@ const uploadFiles = () => {
             router.reload({ only: ["nodes"] }); // refresh node agar file terbaru muncul
         },
         onError: (errors) => {
-            // Menangani error yang terjadi
+            // Menangani error yang terjadi dari backend
             if (errors && errors.files) {
-                // Misalnya error karena ukuran file terlalu besar
                 Swal.fire({
                     icon: "error",
                     title: "Gagal Upload",
