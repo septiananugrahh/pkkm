@@ -30,7 +30,6 @@
                     }}
                 </v-icon>
             </v-col>
-
             <v-col cols="auto" class="d-flex align-center">
                 <v-btn small text @click.stop="openEditModal(node)">
                     <v-icon left>mdi-pencil</v-icon>
