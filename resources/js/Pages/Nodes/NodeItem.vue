@@ -5,11 +5,6 @@
                 <v-icon small v-if="hasChildren">mdi-folder</v-icon>
                 <v-icon small v-else>mdi-file-outline</v-icon>
             </v-col>
-
-            <v-col cols="auto">
-                <v-icon small v-if="hasChildren">mdi-folder</v-icon>
-                <v-icon small v-else>mdi-file-outline</v-icon>
-            </v-col>
             <v-col>
                 <div>
                     {{ node.title }}
@@ -62,6 +57,12 @@
                         class="rounded-lg shadow-md transition-all duration-300 hover:shadow-lg"
                         outlined
                     >
+                        <div
+                            v-if="node.is_completed"
+                            class="mb-4 text-green-600 font-semibold"
+                        >
+                            Penilaian: Selesai
+                        </div>
                         <v-card-text>
                             <div
                                 class="flex items-center justify-between border-b pb-3 mb-3"

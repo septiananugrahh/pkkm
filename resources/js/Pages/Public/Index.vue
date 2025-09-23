@@ -1,5 +1,6 @@
 <template>
     <PublicTemplate>
+        <Head>Public</Head>
         <div class="py-4 sm:py-12 lg:pb-20">
             <v-container>
                 <h2>Struktur Nodes</h2>
@@ -33,7 +34,7 @@
 
 <script setup>
 import { ref, computed, watch } from "vue";
-import { router } from "@inertiajs/vue3";
+import { router, Head } from "@inertiajs/vue3";
 import PublicNodeItem from "@/Pages/Public/NodeItem.vue"; // sesuaikan path kalau beda
 import PublicTemplate from "@/Components/PublicTemplate.vue"; // sesuaikan path jika perlu
 

@@ -1,4 +1,5 @@
 <template>
+    <Head>Penilaian</Head>
     <AuthenticatedLayout>
         <v-container>
             <h2>Daftar Nodes</h2>
@@ -19,7 +20,7 @@
 
             <!-- Tombol Tambah Node Root -->
             <v-btn color="primary" class="mb-4" @click="openModal(null)">
-                Tambah Node Utama
+                Tambah Penilaian
             </v-btn>
 
             <!-- Tree render (rekursif) -->
@@ -60,7 +61,7 @@
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 
 import { ref, computed, watch } from "vue";
-import { useForm, router } from "@inertiajs/vue3";
+import { useForm, router, Head } from "@inertiajs/vue3";
 import NodeItem from "@/Pages/Nodes/NodeItem.vue"; // sesuaikan path kalau beda
 
 const props = defineProps({
@@ -110,6 +111,7 @@ const submit = () => {
     form.post(route("nodes.store"), {
         onSuccess: () => {
             showModal.value = false;
+            form.reset();
             // reload agar menampilkan node baru (bisa juga di-handle oleh server flash / Inertia props)
             router.get(
                 route("nodes.index"),

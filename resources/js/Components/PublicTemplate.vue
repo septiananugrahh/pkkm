@@ -1,6 +1,7 @@
 <template>
     <div class="relative bg-gray-50 overflow-hidden min-h-screen">
         <PublicHeader />
+
         <main class="isolate">
             <div class="relative pt-14">
                 <div
@@ -37,11 +38,11 @@
 
         <footer class="py-12 bg-white">
             <div
-                class="max-w-7xl mx-auto px-6 lg:px-8 text-center text-gray-500"
+                class="max-w-7xl mx-auto px-6 lg:px-8 text-center text-gray-500 text-sm"
             >
                 <p>
-                    Aplikasi ini dikembangkan oleh **SAIC** (Software and
-                    Application Innovation Center).
+                    © SAICPonorogo 2025 &mdash; App development by
+                    <span class="font-semibold text-gray-700">Unnamed</span>
                 </p>
             </div>
         </footer>
