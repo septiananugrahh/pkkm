@@ -1,100 +1,143 @@
 <script setup>
-import Checkbox from '@/Components/Checkbox.vue';
-import GuestLayout from '@/Layouts/GuestLayout.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from "@inertiajs/vue3";
+import { ref } from "vue";
 
 defineProps({
-    canResetPassword: {
-        type: Boolean,
-    },
-    status: {
-        type: String,
-    },
+    canResetPassword: Boolean,
+    status: String,
 });
 
 const form = useForm({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
     remember: false,
 });
 
 const submit = () => {
-    form.post(route('login'), {
-        onFinish: () => form.reset('password'),
+    form.post(route("login"), {
+        onFinish: () => form.reset("password"),
     });
 };
+
+const showPassword = ref(false);
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Log in" />
+    <Head title="Log in" />
 
-        <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
-            {{ status }}
-        </div>
+    <v-app
+        class="bg-grey-lighten-3 d-flex align-center justify-center min-vh-100"
+    >
+        <v-container>
+            <v-row justify="center">
+                <v-col cols="12" sm="8" md="6" lg="4">
+                    <v-card class="pa-8 rounded-xl" elevation="10">
+                        <div class="text-center mb-6">
+                            <v-avatar size="100" class="mb-4">
+                                <v-img
+                                    src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-300.png"
+                                    alt="Logo"
+                                ></v-img>
+                            </v-avatar>
+                            <h1 class="text-h4 font-weight-bold text-primary">
+                                Selamat Datang
+                            </h1>
+                            <p class="text-subtitle-1 text-medium-emphasis">
+                                Silakan masuk ke akun Anda
+                            </p>
+                        </div>
 
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="email" value="Email" />
+                        <v-alert
+                            v-if="status"
+                            type="success"
+                            variant="tonal"
+                            class="mb-4 text-center font-weight-medium"
+                        >
+                            {{ status }}
+                        </v-alert>
 
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autofocus
-                    autocomplete="username"
-                />
+                        <v-form @submit.prevent="submit">
+                            <v-text-field
+                                v-model="form.email"
+                                label="Email"
+                                type="email"
+                                variant="outlined"
+                                :error-messages="form.errors.email"
+                                required
+                                class="mb-4"
+                                prepend-inner-icon="mdi-email-outline"
+                            />
 
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
+                            <v-text-field
+                                v-model="form.password"
+                                label="Password"
+                                :type="showPassword ? 'text' : 'password'"
+                                variant="outlined"
+                                :error-messages="form.errors.password"
+                                required
+                                class="mb-2"
+                                prepend-inner-icon="mdi-lock-outline"
+                                :append-inner-icon="
+                                    showPassword
+                                        ? 'mdi-eye-off-outline'
+                                        : 'mdi-eye-outline'
+                                "
+                                @click:append-inner="
+                                    showPassword = !showPassword
+                                "
+                            />
 
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
+                            <div
+                                class="d-flex justify-space-between align-center mb-6"
+                            >
+                                <v-checkbox
+                                    v-model="form.remember"
+                                    label="Ingat Saya"
+                                    hide-details
+                                />
 
-                <TextInput
-                    id="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    v-model="form.password"
-                    required
-                    autocomplete="current-password"
-                />
+                                <Link
+                                    v-if="canResetPassword"
+                                    :href="route('password.request')"
+                                    class="text-decoration-none text-primary font-weight-medium"
+                                >
+                                    Lupa Password?
+                                </Link>
+                            </div>
 
-                <InputError class="mt-2" :message="form.errors.password" />
-            </div>
+                            <v-btn
+                                type="submit"
+                                color="primary"
+                                size="large"
+                                block
+                                class="rounded-lg font-weight-bold"
+                                :loading="form.processing"
+                                :disabled="form.processing"
+                            >
+                                Log in
+                            </v-btn>
+                        </v-form>
 
-            <div class="mt-4 block">
-                <label class="flex items-center">
-                    <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600"
-                        >Remember me</span
-                    >
-                </label>
-            </div>
-
-            <div class="mt-4 flex items-center justify-end">
-                <Link
-                    v-if="canResetPassword"
-                    :href="route('password.request')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                    Forgot your password?
-                </Link>
-
-                <PrimaryButton
-                    class="ms-4"
-                    :class="{ 'opacity-25': form.processing }"
-                    :disabled="form.processing"
-                >
-                    Log in
-                </PrimaryButton>
-            </div>
-        </form>
-    </GuestLayout>
+                        <div
+                            class="text-center mt-8 text-caption text-medium-emphasis"
+                        >
+                            <!-- Belum punya akun?
+                            <Link
+                                :href="route('register')"
+                                class="text-decoration-none text-primary font-weight-medium"
+                            >
+                                Daftar Sekarang
+                            </Link> -->
+                        </div>
+                    </v-card>
+                </v-col>
+            </v-row>
+        </v-container>
+    </v-app>
 </template>
+
+<style scoped>
+.min-vh-100 {
+    min-height: 100vh;
+}
+</style>

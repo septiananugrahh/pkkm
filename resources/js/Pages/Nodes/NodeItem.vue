@@ -37,7 +37,7 @@
                 >
                     <v-icon left>mdi-plus</v-icon>
                 </v-btn>
-                <v-btn
+                <!-- <v-btn
                     small
                     text
                     color="error"
@@ -45,7 +45,7 @@
                     @click.stop="deleteNode(node.id)"
                 >
                     <v-icon>mdi-delete</v-icon>
-                </v-btn>
+                </v-btn> -->
             </v-col>
         </v-row>
 
