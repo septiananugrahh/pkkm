@@ -38,6 +38,9 @@ jobs:
       - name: 🔧 Generate Key Laravel
         run: php artisan key:generate
 
+      - name: 🔧 Storage Link Laravel
+        run: php artisan storage:link
+
       # Set directory permissions
       - name: Directory Permissions
         run: chmod -R 777 storage bootstrap/cache
