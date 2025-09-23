@@ -22,11 +22,18 @@
             <v-btn color="primary" class="mb-4" @click="openModal(null)">
                 Tambah Penilaian
             </v-btn>
+            <v-text-field
+                v-model="searchQuery"
+                label="Cari Judul Node"
+                append-icon="mdi-magnify"
+                class="mb-4"
+                clearable
+            />
 
             <!-- Tree render (rekursif) -->
             <div>
                 <node-item
-                    v-for="node in nodes"
+                    v-for="node in filteredNodes"
                     :key="node.id"
                     :node="node"
                     @add-child="openModal"
@@ -69,6 +76,41 @@ const props = defineProps({
     years: Array,
     year: [Number, String, null],
 });
+
+const searchQuery = ref("");
+
+function filterNodesRecursively(nodes, query) {
+    if (!query) return nodes;
+
+    return nodes
+        .map((node) => {
+            const match = node.title
+                .toLowerCase()
+                .includes(query.toLowerCase());
+
+            if (node.children && node.children.length > 0) {
+                const filteredChildren = filterNodesRecursively(
+                    node.children,
+                    query
+                );
+                if (match || filteredChildren.length > 0) {
+                    return {
+                        ...node,
+                        children: filteredChildren,
+                    };
+                }
+            }
+
+            if (match) return { ...node, children: [] };
+
+            return null;
+        })
+        .filter((node) => node !== null);
+}
+
+const filteredNodes = computed(() =>
+    filterNodesRecursively(props.nodes, searchQuery.value)
+);
 
 const showModal = ref(false);
 const selectedYear = ref(
