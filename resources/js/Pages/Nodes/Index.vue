@@ -18,9 +18,9 @@
         </v-row>
 
         <!-- Tombol Tambah Node Root -->
-        <v-btn color="primary" class="mb-4" @click="openModal(null)">
+        <!-- <v-btn color="primary" class="mb-4" @click="openModal(null)">
             Tambah Penilaian
-        </v-btn>
+        </v-btn> -->
         <v-text-field
             v-model="searchQuery"
             label="Cari Nama Penilaian"

@@ -134,16 +134,16 @@
                             <!-- Daftar Files Terupload (Horizontal / Grid) -->
                             <v-card
                                 v-if="node.files && node.files.length"
-                                class="p-4 rounded-lg shadow-sm"
+                                class="p-2 rounded-lg shadow-sm"
                             >
                                 <h4
-                                    class="text-lg font-bold text-gray-800 mb-3"
+                                    class="text-lg font-bold text-gray-800 ml-3"
                                 >
                                     Files Terupload
                                 </h4>
 
                                 <div
-                                    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
+                                    class="grid p-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
                                 >
                                     <div
                                         v-for="f in node.files"
@@ -431,7 +431,7 @@ const uploadFiles = () => {
     if (!fileForm.files || fileForm.files.length === 0) return;
 
     // Validasi ukuran file sebelum upload
-    const maxSize = 20 * 1024 * 1024; // Maksimal 2MB
+    const maxSize = 20 * 1024 * 1024; // Maksimal 20MB
     for (let i = 0; i < fileForm.files.length; i++) {
         const file = fileForm.files[i];
 
