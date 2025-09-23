@@ -14,19 +14,20 @@
                         transparan, dan efisien.
                     </p>
                     <div class="mt-10 flex items-center justify-center gap-x-6">
-                        <a
+                        <Link
                             :href="route('public.index')"
                             class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                         >
                             Lihat Penilaian Publik
-                        </a>
-                        <a
+                        </Link>
+
+                        <Link
                             :href="route('login')"
                             class="text-sm font-semibold leading-6 text-gray-900"
                         >
                             Masuk Halaman Admin
                             <span aria-hidden="true">→</span>
-                        </a>
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -35,8 +36,8 @@
 </template>
 
 <script setup>
-import { Head } from "@inertiajs/vue3";
-import PublicTemplate from "@/Components/PublicTemplate.vue"; // sesuaikan path jika perlu
+import { Head, Link } from "@inertiajs/vue3";
+import PublicTemplate from "@/Components/PublicTemplate.vue";
 
 defineProps({
     canLogin: Boolean,
