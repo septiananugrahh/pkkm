@@ -1,6 +1,7 @@
 <template>
     <PublicTemplate>
-        <Head>Public</Head>
+        <Head title="Penilaian" />
+
         <div class="py-4 sm:py-12 lg:pb-20">
             <v-container>
                 <h2>Struktur Nodes</h2>

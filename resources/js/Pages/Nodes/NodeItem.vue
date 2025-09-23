@@ -37,7 +37,7 @@
                 >
                     <v-icon left>mdi-plus</v-icon>
                 </v-btn>
-                <v-btn
+                <!-- <v-btn
                     small
                     text
                     color="error"
@@ -45,7 +45,7 @@
                     @click.stop="deleteNode(node.id)"
                 >
                     <v-icon>mdi-delete</v-icon>
-                </v-btn>
+                </v-btn> -->
             </v-col>
         </v-row>
 
@@ -57,31 +57,20 @@
                         class="rounded-lg shadow-md transition-all duration-300 hover:shadow-lg"
                         outlined
                     >
-                        <div
-                            v-if="node.is_completed"
-                            class="mb-4 text-green-600 font-semibold"
-                        >
-                            Penilaian: Selesai
-                        </div>
                         <v-card-text>
+                            <!-- Status Penilaian -->
                             <div
-                                class="flex items-center justify-between border-b pb-3 mb-3"
+                                v-if="node.is_completed"
+                                class="mb-4 text-green-600 font-semibold"
                             >
-                                <div class="space-y-1">
-                                    <!-- <div
-                                        class="text-sm font-semibold text-gray-700"
-                                    >
-                                        ID: {{ node.id }}
-                                    </div>
-                                    <div class="text-xs text-gray-500">
-                                        Tahun:
-                                        {{
-                                            node.year
-                                                ? node.year.year
-                                                : node.year_id
-                                        }}
-                                    </div> -->
-                                </div>
+                                Penilaian: Selesai
+                            </div>
+
+                            <!-- Tombol Tandai Selesai -->
+                            <div
+                                class="flex items-center justify-between border-b pb-3 mb-6"
+                            >
+                                <div></div>
                                 <v-btn
                                     :color="
                                         node.is_completed ? 'error' : 'success'
@@ -106,13 +95,17 @@
                                 </v-btn>
                             </div>
 
-                            <div class="mb-4">
+                            <!-- Upload Files -->
+                            <v-card class="mb-6 p-4 rounded-lg shadow-sm">
                                 <h4
-                                    class="text-lg font-bold text-gray-800 mb-2"
+                                    class="text-lg font-bold text-gray-800 mb-3"
                                 >
                                     Upload Files
                                 </h4>
-                                <v-form @submit.prevent="uploadFiles">
+                                <v-form
+                                    @submit.prevent="uploadFiles"
+                                    class="space-y-4"
+                                >
                                     <v-file-input
                                         v-model="fileForm.files"
                                         multiple
@@ -130,81 +123,82 @@
                                             fileForm.files.length === 0
                                         "
                                         :loading="fileForm.processing"
-                                        class="w-full mt-2"
+                                        class="w-full"
                                         large
                                     >
                                         Upload
                                     </v-btn>
                                 </v-form>
-                            </div>
+                            </v-card>
 
-                            <div v-if="node.files && node.files.length">
+                            <!-- Daftar Files Terupload (Horizontal / Grid) -->
+                            <v-card
+                                v-if="node.files && node.files.length"
+                                class="p-4 rounded-lg shadow-sm"
+                            >
                                 <h4
-                                    class="text-lg font-bold text-gray-800 mb-2"
+                                    class="text-lg font-bold text-gray-800 mb-3"
                                 >
-                                    Files:
+                                    Files Terupload
                                 </h4>
-                                <v-list dense class="bg-transparent">
-                                    <v-list-item
+
+                                <div
+                                    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
+                                >
+                                    <div
                                         v-for="f in node.files"
                                         :key="f.id"
-                                        class="px-0"
+                                        class="flex flex-col items-center border rounded-lg p-2 shadow-sm hover:shadow-md transition"
                                     >
-                                        <div
-                                            class="w-full flex items-center justify-between py-2 border-b last:border-0"
-                                        >
-                                            <div
-                                                class="flex items-center space-x-2"
-                                            >
-                                                <v-icon
-                                                    small
-                                                    :color="
-                                                        getFileIconColor(
-                                                            f.file_name
-                                                        )
-                                                    "
-                                                >
-                                                    {{
-                                                        getFileIcon(f.file_name)
-                                                    }}
-                                                </v-icon>
-                                                <a
-                                                    :href="`/storage/${f.file_path}`"
-                                                    target="_blank"
-                                                    @click.prevent="
-                                                        openFileViewer(f)
-                                                    "
-                                                    class="text-blue-600 hover:underline transition-colors duration-200"
-                                                >
-                                                    {{ f.file_name }}
-                                                </a>
-                                            </div>
-                                            <v-btn
-                                                icon
-                                                small
-                                                color="red"
-                                                @click="deleteFile(f.id)"
-                                            >
-                                                <v-icon small
-                                                    >mdi-delete</v-icon
-                                                >
-                                            </v-btn>
-                                        </div>
-
-                                        <div
-                                            v-if="isImage(f.file_name)"
-                                            class="mt-2 text-center"
-                                        >
+                                        <!-- Thumbnail atau Icon -->
+                                        <div v-if="isImage(f.file_name)">
                                             <v-img
                                                 :src="`/storage/${f.file_path}`"
-                                                max-width="300"
-                                                class="rounded-lg shadow-md transition-shadow duration-300 hover:shadow-lg mx-auto"
+                                                max-width="120"
+                                                max-height="120"
+                                                class="rounded-lg mb-2"
                                                 cover
                                             />
                                         </div>
-                                    </v-list-item>
-                                </v-list>
-                            </div>
+                                        <div
+                                            v-else
+                                            class="flex items-center justify-center w-24 h-24 bg-gray-100 rounded-lg mb-2"
+                                        >
+                                            <v-icon
+                                                large
+                                                :color="
+                                                    getFileIconColor(
+                                                        f.file_name
+                                                    )
+                                                "
+                                            >
+                                                {{ getFileIcon(f.file_name) }}
+                                            </v-icon>
+                                        </div>
+
+                                        <!-- Nama File -->
+                                        <a
+                                            :href="`/storage/${f.file_path}`"
+                                            target="_blank"
+                                            @click.prevent="openFileViewer(f)"
+                                            class="text-sm text-center text-blue-600 hover:underline break-words"
+                                        >
+                                            {{ f.file_name }}
+                                        </a>
+
+                                        <!-- Tombol Delete -->
+                                        <v-btn
+                                            icon
+                                            small
+                                            color="red"
+                                            @click="deleteFile(f.id)"
+                                            class="mt-1"
+                                        >
+                                            <v-icon small>mdi-delete</v-icon>
+                                        </v-btn>
+                                    </div>
+                                </div>
+                            </v-card>
                         </v-card-text>
                     </v-card>
 

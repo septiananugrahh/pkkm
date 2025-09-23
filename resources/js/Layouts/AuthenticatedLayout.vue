@@ -1,143 +1,197 @@
-<template>
-    <div class="min-h-screen bg-gray-100 font-sans">
-        <v-app>
-            <!-- Top App Bar -->
-            <v-app-bar app color="white" flat class="border-b border-gray-200">
-                <v-app-bar-nav-icon @click="drawer = !drawer" />
-
-                <v-toolbar-title class="font-bold text-gray-800">
-                    PKKM
-                </v-toolbar-title>
-
-                <v-spacer />
-
-                <!-- User Dropdown Menu -->
-                <v-menu offset-y attach>
-                    <template v-slot:activator="{ on, attrs }">
-                        <v-btn
-                            v-bind="attrs"
-                            v-on="on"
-                            text
-                            class="capitalize text-gray-800"
-                        >
-                            {{ $page.props.auth.user.name }}
-                            <v-icon end>mdi-menu-down</v-icon>
-                        </v-btn>
-                    </template>
-
-                    <v-list dense>
-                        <!-- Profile -->
-                        <v-list-item>
-                            <Link
-                                :href="route('profile.edit')"
-                                class="w-full text-left text-sm font-medium"
-                            >
-                                <v-icon start class="mr-2">mdi-account</v-icon>
-                                Profile
-                            </Link>
-                        </v-list-item>
-
-                        <!-- Logout Form -->
-                        <v-list-item>
-                            <v-btn
-                                @click="logout"
-                                text
-                                class="w-full justify-start text-sm font-medium text-left text-red-600"
-                            >
-                                <v-icon start class="mr-2">mdi-logout</v-icon>
-                                Log Out
-                            </v-btn>
-                        </v-list-item>
-                    </v-list>
-                </v-menu>
-            </v-app-bar>
-
-            <!-- Sidebar -->
-            <v-navigation-drawer v-model="drawer" app clipped permanent>
-                <v-list nav>
-                    <v-list-item>
-                        <v-list-item-content>
-                            <v-list-item-title class="text-h6 text-center">
-                                <Link :href="route('dashboard')">PKKM</Link>
-                            </v-list-item-title>
-                        </v-list-item-content>
-                    </v-list-item>
-
-                    <v-divider />
-
-                    <!-- Dashboard -->
-                    <Link :href="route('dashboard')">
-                        <v-list-item link>
-                            <v-list-item-content class="flex items-center">
-                                <v-icon>mdi-view-dashboard</v-icon>
-                                <span class="ml-2">Dashboard</span>
-                            </v-list-item-content>
-                        </v-list-item>
-                    </Link>
-
-                    <!-- Penilaian -->
-                    <Link :href="route('nodes.index')">
-                        <v-list-item link>
-                            <v-list-item-content class="flex items-center">
-                                <v-icon>mdi-file-tree-outline</v-icon>
-                                <span class="ml-2">Penilaian</span>
-                            </v-list-item-content>
-                        </v-list-item>
-                    </Link>
-
-                    <!-- Tampilan Publik -->
-                    <Link :href="route('show.index')">
-                        <v-list-item link>
-                            <v-list-item-content class="flex items-center">
-                                <v-icon>mdi-eye-outline</v-icon>
-                                <span class="ml-2">Tampilan Publik</span>
-                            </v-list-item-content>
-                        </v-list-item>
-                    </Link>
-
-                    <!-- Logout -->
-                    <v-divider class="my-4" />
-                    <Link
-                        :href="route('logout')"
-                        method="post"
-                        as="button"
-                        class="text-sm font-medium w-full text-left"
-                    >
-                        <v-icon left>mdi-logout</v-icon>
-                        Logout
-                    </Link>
-                </v-list>
-            </v-navigation-drawer>
-
-            <!-- Page Content -->
-            <v-main class="bg-gray-50">
-                <div class="py-6 px-4 sm:px-6 lg:px-8">
-                    <slot name="header"></slot>
-                </div>
-                <div class="px-4 sm:px-6 lg:px-8">
-                    <slot></slot>
-                </div>
-            </v-main>
-        </v-app>
-    </div>
-</template>
-
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { Link, usePage } from "@inertiajs/vue3";
 import axios from "axios";
 
-const drawer = ref(true);
 const page = usePage();
+const mobileMenu = ref(false);
+const isMobile = ref(window.innerWidth < 640); // breakpoint sm
+
+// Update isMobile saat resize
+window.addEventListener("resize", () => {
+    isMobile.value = window.innerWidth < 640;
+});
+
+const menuItems = [
+    {
+        name: "Dashboard",
+        route: route("dashboard"),
+        icon: "mdi-view-dashboard",
+    },
+    {
+        name: "Penilaian",
+        route: route("nodes.index"),
+        icon: "mdi-file-tree-outline",
+    },
+    {
+        name: "Tampilan Publik",
+        route: route("show.index"),
+        icon: "mdi-eye-outline",
+    },
+];
 
 const logout = () => {
     axios
-        .post(route("logout")) // Kirim permintaan POST untuk logout
-        .then(() => {
-            window.location.href = "/login"; // Setelah logout, arahkan ke login
-        })
-        .catch((error) => {
-            console.error("Logout gagal:", error);
-        });
+        .post(route("logout"))
+        .then(() => (window.location.href = route("login")))
+        .catch((err) => console.error("Logout gagal:", err));
+};
+
+const isActiveRoute = (routeUrl) => {
+    return (
+        window.location.pathname ===
+        new URL(routeUrl, window.location.origin).pathname
+    );
 };
 </script>
+
+<template>
+    <v-app>
+        <!-- Top App Bar -->
+        <v-app-bar app dark color="purple accent-4" elevate-on-scroll>
+            <v-toolbar-title class="font-bold text-white">PKKM</v-toolbar-title>
+            <v-spacer />
+
+            <!-- Hamburger Menu hanya mobile -->
+            <v-app-bar-nav-icon
+                v-if="isMobile"
+                @click="mobileMenu = !mobileMenu"
+            />
+
+            <!-- Horizontal Menu (desktop) -->
+            <div v-if="!isMobile" class="flex">
+                <Link
+                    v-for="item in menuItems"
+                    :key="item.name"
+                    :href="item.route"
+                    class="mx-1"
+                >
+                    <v-btn
+                        text
+                        class="text-white font-medium"
+                        :class="{
+                            'bg-purple-700 rounded-lg px-3': isActiveRoute(
+                                item.route
+                            ),
+                        }"
+                    >
+                        <v-icon left>{{ item.icon }}</v-icon>
+                        {{ item.name }}
+                    </v-btn>
+                </Link>
+            </div>
+
+            <!-- User Dropdown -->
+            <v-menu offset-y>
+                <template #activator="{ props: menuProps, on: menuOn }">
+                    <v-btn
+                        v-bind="menuProps"
+                        v-on="menuOn"
+                        text
+                        class="ml-2 text-white"
+                    >
+                        {{ page.props.auth.user.name }}
+                        <v-icon end>mdi-menu-down</v-icon>
+                    </v-btn>
+                </template>
+
+                <v-list dense>
+                    <v-list-item>
+                        <Link
+                            :href="route('profile.edit')"
+                            class="flex items-center gap-2 w-full text-left text-sm font-medium"
+                        >
+                            <v-icon>mdi-account</v-icon>
+                            Profile
+                        </Link>
+                    </v-list-item>
+
+                    <v-list-item>
+                        <v-btn
+                            @click="logout"
+                            text
+                            class="w-full justify-start text-left text-sm font-medium flex items-center gap-2 text-red-600"
+                        >
+                            <v-icon>mdi-logout</v-icon>
+                            Logout
+                        </v-btn>
+                    </v-list-item>
+                </v-list>
+            </v-menu>
+        </v-app-bar>
+
+        <!-- Mobile Menu Drawer hanya mobile -->
+        <v-navigation-drawer
+            v-if="isMobile"
+            v-model="mobileMenu"
+            temporary
+            right
+            app
+        >
+            <v-list nav dense>
+                <v-list-item
+                    v-for="item in menuItems"
+                    :key="item.name"
+                    :href="item.route"
+                    :class="{
+                        'bg-purple-100 rounded-lg': isActiveRoute(item.route),
+                    }"
+                    link
+                >
+                    <v-list-item-icon>
+                        <v-icon>{{ item.icon }}</v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title>{{ item.name }}</v-list-item-title>
+                </v-list-item>
+
+                <v-divider class="my-2" />
+
+                <v-list-item
+                    :href="route('profile.edit')"
+                    link
+                    class="flex items-center gap-2 text-sm font-medium"
+                >
+                    <v-icon>mdi-account</v-icon>
+                    <v-list-item-title>Profile</v-list-item-title>
+                </v-list-item>
+
+                <v-list-item
+                    @click="logout"
+                    link
+                    class="flex items-center gap-2 text-sm font-medium text-red-600"
+                >
+                    <v-icon>mdi-logout</v-icon>
+                    <v-list-item-title>Logout</v-list-item-title>
+                </v-list-item>
+            </v-list>
+        </v-navigation-drawer>
+
+        <!-- Page Content with Gradient Background -->
+        <v-main>
+            <div
+                class="min-h-screen py-6 px-4 sm:px-6 lg:px-8"
+                style="
+                    background: linear-gradient(
+                        135deg,
+                        #f3e8ff 0%,
+                        #c4b5fd 100%
+                    );
+                "
+            >
+                <div class="mb-6">
+                    <slot name="header"></slot>
+                </div>
+
+                <div class="bg-white/80 p-6 rounded-xl shadow-lg">
+                    <slot></slot>
+                </div>
+            </div>
+        </v-main>
+    </v-app>
+</template>
+
+<style scoped>
+.v-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+</style>

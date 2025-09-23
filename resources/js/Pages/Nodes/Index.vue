@@ -1,66 +1,64 @@
 <template>
-    <Head>Penilaian</Head>
+    <Head title="Penilaian" />
     <AuthenticatedLayout>
-        <v-container>
-            <h2>Daftar Nodes</h2>
+        <h2>Daftar Penilaian</h2>
 
-            <!-- Pilihan Tahun -->
-            <v-row class="mb-4">
-                <v-col cols="12" sm="4">
-                    <v-select
-                        v-model="selectedYear"
-                        :items="years"
-                        :item-title="isYearObjects ? 'year' : null"
-                        :item-value="isYearObjects ? 'id' : null"
-                        label="Pilih Tahun"
-                        @update:modelValue="reload"
-                    />
-                </v-col>
-            </v-row>
-
-            <!-- Tombol Tambah Node Root -->
-            <v-btn color="primary" class="mb-4" @click="openModal(null)">
-                Tambah Penilaian
-            </v-btn>
-            <v-text-field
-                v-model="searchQuery"
-                label="Cari Nama Penilaian"
-                append-icon="mdi-magnify"
-                class="mb-4"
-                clearable
-            />
-
-            <!-- Tree render (rekursif) -->
-            <div>
-                <node-item
-                    v-for="node in filteredNodes"
-                    :key="node.id"
-                    :node="node"
-                    @add-child="openModal"
+        <!-- Pilihan Tahun -->
+        <v-row class="mb-4">
+            <v-col cols="12" sm="4">
+                <v-select
+                    v-model="selectedYear"
+                    :items="years"
+                    :item-title="isYearObjects ? 'year' : null"
+                    :item-value="isYearObjects ? 'id' : null"
+                    label="Pilih Tahun"
+                    @update:modelValue="reload"
                 />
-            </div>
+            </v-col>
+        </v-row>
 
-            <!-- Modal Tambah Node -->
-            <v-dialog v-model="showModal" max-width="500">
-                <v-card>
-                    <v-card-title>Tambah Node</v-card-title>
-                    <v-card-text>
-                        <v-form @submit.prevent="submit">
-                            <v-text-field
-                                v-model="form.title"
-                                label="Nama Penilaian"
-                                required
-                            />
-                        </v-form>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer />
-                        <v-btn text @click="showModal = false">Batal</v-btn>
-                        <v-btn color="primary" @click="submit">Simpan</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
-        </v-container>
+        <!-- Tombol Tambah Node Root -->
+        <v-btn color="primary" class="mb-4" @click="openModal(null)">
+            Tambah Penilaian
+        </v-btn>
+        <v-text-field
+            v-model="searchQuery"
+            label="Cari Nama Penilaian"
+            append-icon="mdi-magnify"
+            class="mb-4"
+            clearable
+        />
+
+        <!-- Tree render (rekursif) -->
+        <div>
+            <node-item
+                v-for="node in filteredNodes"
+                :key="node.id"
+                :node="node"
+                @add-child="openModal"
+            />
+        </div>
+
+        <!-- Modal Tambah Node -->
+        <v-dialog v-model="showModal" max-width="500">
+            <v-card>
+                <v-card-title>Tambah Node</v-card-title>
+                <v-card-text>
+                    <v-form @submit.prevent="submit">
+                        <v-text-field
+                            v-model="form.title"
+                            label="Nama Penilaian"
+                            required
+                        />
+                    </v-form>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer />
+                    <v-btn text @click="showModal = false">Batal</v-btn>
+                    <v-btn color="primary" @click="submit">Simpan</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </AuthenticatedLayout>
 </template>
 
@@ -88,21 +86,29 @@ function filterNodesRecursively(nodes, query) {
                 .toLowerCase()
                 .includes(query.toLowerCase());
 
-            if (node.children && node.children.length > 0) {
-                const filteredChildren = filterNodesRecursively(
-                    node.children,
-                    query
-                );
-                if (match || filteredChildren.length > 0) {
-                    return {
-                        ...node,
-                        children: filteredChildren,
-                    };
-                }
+            // Jika node match, tampilkan node + semua children asli
+            if (match) {
+                return {
+                    ...node,
+                    children: node.children ? node.children : [],
+                };
             }
 
-            if (match) return { ...node, children: [] };
+            // Jika node tidak match, periksa children
+            let filteredChildren = [];
+            if (node.children && node.children.length > 0) {
+                filteredChildren = filterNodesRecursively(node.children, query);
+            }
 
+            // Jika ada child yang match, tampilkan node + child yang match
+            if (filteredChildren.length > 0) {
+                return {
+                    ...node,
+                    children: filteredChildren,
+                };
+            }
+
+            // Node tidak match dan tidak ada child match → hilangkan
             return null;
         })
         .filter((node) => node !== null);
