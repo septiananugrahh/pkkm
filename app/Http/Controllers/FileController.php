@@ -19,6 +19,7 @@ class FileController extends Controller
             'files.*.mimes' => 'Tipe file tidak didukung. Harap upload file dengan ekstensi jpg, jpeg, png, pdf, doc, atau docx.'
         ]);
 
+
         foreach ($request->file('files') as $file) {
             $path = $file->store('uploads/files', 'public');
 
