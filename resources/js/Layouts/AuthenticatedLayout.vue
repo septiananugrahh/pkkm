@@ -86,18 +86,14 @@
                     </Link>
 
                     <!-- Tampilan Publik -->
-                    <a
-                        :href="route('public.index')"
-                        target="_blank"
-                        class="no-underline"
-                    >
+                    <Link :href="route('public.index')">
                         <v-list-item link>
                             <v-list-item-content class="flex items-center">
                                 <v-icon>mdi-eye-outline</v-icon>
                                 <span class="ml-2">Tampilan Publik</span>
                             </v-list-item-content>
                         </v-list-item>
-                    </a>
+                    </Link>
 
                     <!-- Logout -->
                     <v-divider class="my-4" />
