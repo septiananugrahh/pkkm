@@ -8,9 +8,14 @@
             <v-col>
                 <div>
                     {{ node.title }}
-                    <span v-if="hasChildren" class="ml-2 text-sm text-gray-500">
+                    <!-- tampilkan persentase kalau bukan leaf -->
+                    <span
+                        v-if="!isLeaf && completionPercentage !== null"
+                        class="ml-2 text-sm text-gray-500"
+                    >
                         ({{ completionPercentage }}%)
                     </span>
+
                     <span v-else class="ml-2 text-sm text-gray-500">
                         ({{
                             node.files && node.files.length > 0 ? "100%" : "0%"
@@ -299,22 +304,6 @@ const props = defineProps({
     node: { type: Object, required: true },
 });
 
-const completionPercentage = computed(() => {
-    if (
-        !props.node.children_total_count ||
-        props.node.children_total_count === 0
-    ) {
-        // Jika tidak ada anak yang perlu dihitung (misal parent node tanpa leaf node),
-        // atau jika itu adalah leaf node.
-        return 0;
-    }
-    const percentage =
-        (props.node.children_completed_count /
-            props.node.children_total_count) *
-        100;
-    return percentage.toFixed(0); // Bulatkan ke angka terdekat
-});
-
 // Perbarui computed isCompletedAll agar sesuai dengan logika persentase
 const isCompletedAll = computed(() => {
     // Jika node adalah leaf node
@@ -330,26 +319,29 @@ const isCompletedAll = computed(() => {
 console.log("Node ID:", props.node.id);
 console.log("Files:", props.node.files);
 
-const loading = ref(false);
-
 import { route } from "ziggy-js";
 
-// Vue (Inertia)
 const toggleComplete = (node) => {
     router.put(
         route("nodes.toggleComplete", { node: node.id }),
-        {}, // Data kosong, karena Anda tidak mengirim payload
+        {},
         {
             onSuccess: () => {
-                // Opsional: Lakukan sesuatu setelah berhasil, misalnya flash message
-                console.log("Berhasil toggle complete!");
-            },
-            onError: (errors) => {
-                console.error("Gagal toggle complete:", errors);
+                // Toggle status selesai
+                node.is_completed = !node.is_completed;
+
+                // Kalau parent, hitung ulang jumlah completed children
+                if (props.node.children) {
+                    const completed = props.node.children.filter(
+                        (c) => c.is_completed
+                    ).length;
+                    props.node.children_completed_count = completed;
+                }
             },
         }
     );
 };
+
 // ... ref, computed, dan fungsi lainnya
 
 const showFileViewer = ref(false);
@@ -425,6 +417,39 @@ function toggle() {
 // form upload
 const fileForm = useForm({
     files: [],
+});
+
+const isLeaf = computed(() => {
+    return !props.node.children || props.node.children.length === 0;
+});
+
+// hitung persentase selesai berdasarkan children
+function calculateCompletion(node) {
+    if (!node.children || node.children.length === 0) {
+        // leaf: pakai status selesai (true/false → 0/100)
+        return {
+            done: node.is_completed ? 1 : 0,
+            total: 1,
+        };
+    }
+
+    // kalau punya anak → akumulasi semua children
+    return node.children.reduce(
+        (acc, child) => {
+            const childResult = calculateCompletion(child);
+            acc.done += childResult.done;
+            acc.total += childResult.total;
+            return acc;
+        },
+        { done: 0, total: 0 }
+    );
+}
+
+const completionPercentage = computed(() => {
+    if (isLeaf.value) return null; // leaf → tidak ada persentase
+
+    const { done, total } = calculateCompletion(props.node);
+    return total > 0 ? Math.round((done / total) * 100) : 0;
 });
 
 const uploadFiles = () => {
