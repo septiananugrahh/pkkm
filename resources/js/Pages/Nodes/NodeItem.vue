@@ -548,7 +548,7 @@ function toggle() {
     expanded.value = !expanded.value;
 }
 
-// form uploa
+// form upload
 const showUploadProgressModal = ref(false);
 const uploadProgress = ref(0);
 
