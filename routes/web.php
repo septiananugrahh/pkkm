@@ -33,6 +33,10 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/files/available', [FileController::class, 'availableFiles'])->name('files.available');
+    Route::post('/nodes/{node}/files/attach', [FileController::class, 'attach'])
+        ->name('files.attach');
+
     Route::resource('nodes', NodeController::class);
 
     // khusus upload file

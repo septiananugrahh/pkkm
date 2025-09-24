@@ -64,82 +64,212 @@
                     >
                         <v-card-text>
                             <!-- Status Penilaian -->
+                            <!-- Status Penilaian -->
                             <div
                                 v-if="node.is_completed"
                                 class="mb-4 text-green-600 font-semibold"
                             >
-                                Input Data: Selesai
+                                ✅ Input Data: Selesai
                             </div>
 
-                            <!-- Tombol Tandai Selesai -->
-                            <div
-                                class="flex items-center justify-between border-b pb-3 mb-6"
-                            >
-                                <div></div>
-                                <v-btn
-                                    :color="
-                                        node.is_completed ? 'error' : 'success'
-                                    "
-                                    @click.stop="toggleComplete(node)"
-                                    class="font-semibold"
-                                >
-                                    <v-icon left>
-                                        {{
+                            <h4 class="text-lg font-bold text-gray-800 mb-4">
+                                Upload & Status Penilaian
+                            </h4>
+
+                            <v-row dense align="center">
+                                <!-- Tombol Upload -->
+                                <v-col cols="12" sm="6">
+                                    <v-btn
+                                        color="primary"
+                                        size="large"
+                                        block
+                                        @click="openUploadChoiceModal"
+                                    >
+                                        <v-icon start>mdi-upload</v-icon>
+                                        Upload / Pilih File
+                                    </v-btn>
+                                </v-col>
+
+                                <!-- Tombol Tandai Selesai -->
+                                <v-col cols="12" sm="6">
+                                    <v-btn
+                                        :color="
                                             node.is_completed
-                                                ? "mdi-close-circle"
-                                                : "mdi-check-circle"
-                                        }}
-                                    </v-icon>
-                                    <span>
+                                                ? 'error'
+                                                : 'success'
+                                        "
+                                        size="large"
+                                        block
+                                        @click.stop="toggleComplete(node)"
+                                    >
+                                        <v-icon start>
+                                            {{
+                                                node.is_completed
+                                                    ? "mdi-close-circle"
+                                                    : "mdi-check-circle"
+                                            }}
+                                        </v-icon>
                                         {{
                                             node.is_completed
                                                 ? "Batal Selesai"
                                                 : "Tandai Selesai"
                                         }}
-                                    </span>
-                                </v-btn>
-                            </div>
+                                    </v-btn>
+                                </v-col>
+                            </v-row>
 
                             <!-- Upload Files -->
-                            <v-card class="mb-6 p-4 rounded-lg shadow-sm">
-                                <h4
-                                    class="text-lg font-bold text-gray-800 mb-3"
-                                >
-                                    Upload Files
-                                </h4>
-                                <v-form
-                                    @submit.prevent="uploadFiles"
-                                    class="space-y-4"
-                                >
-                                    <v-file-input
-                                        v-model="fileForm.files"
-                                        multiple
-                                        accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
-                                        label="Pilih file"
-                                        show-size
-                                        outlined
-                                        dense
-                                    />
-                                    <v-btn
-                                        type="submit"
-                                        color="primary"
-                                        :disabled="
-                                            !fileForm.files ||
-                                            fileForm.files.length === 0
-                                        "
-                                        :loading="fileForm.processing"
-                                        class="w-full"
-                                        large
+
+                            <v-dialog
+                                v-model="showUploadProgressModal"
+                                persistent
+                                max-width="400"
+                            >
+                                <v-card>
+                                    <v-card-title class="text-h6">
+                                        Mengunggah File...
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <div class="text-center mb-4">
+                                            {{ uploadProgress }}%
+                                        </div>
+                                        <v-progress-linear
+                                            :model-value="uploadProgress"
+                                            color="primary"
+                                            height="20"
+                                            rounded
+                                        >
+                                        </v-progress-linear>
+                                    </v-card-text>
+                                    <v-card-actions class="justify-center">
+                                        <v-btn
+                                            text
+                                            color="error"
+                                            @click="cancelUpload"
+                                            :disabled="uploadProgress === 100"
+                                        >
+                                            Batalkan
+                                        </v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-dialog>
+
+                            <!-- Modal Pilihan Upload -->
+                            <v-dialog
+                                v-model="showUploadChoiceModal"
+                                max-width="600"
+                            >
+                                <v-card>
+                                    <v-card-title
+                                        >Pilih Sumber File</v-card-title
                                     >
-                                        Upload
-                                    </v-btn>
-                                </v-form>
-                            </v-card>
+                                    <v-card-text>
+                                        <v-tabs
+                                            v-model="uploadTab"
+                                            background-color="primary"
+                                            dark
+                                        >
+                                            <v-tab value="new"
+                                                >Upload Baru</v-tab
+                                            >
+                                            <v-tab value="existing"
+                                                >Pilih dari Database</v-tab
+                                            >
+                                        </v-tabs>
+
+                                        <v-window v-model="uploadTab">
+                                            <!-- Tab Upload Baru -->
+                                            <v-window-item value="new">
+                                                <v-form
+                                                    @submit.prevent="
+                                                        uploadFiles
+                                                    "
+                                                    class="mt-4"
+                                                >
+                                                    <v-file-input
+                                                        v-model="fileForm.files"
+                                                        multiple
+                                                        accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                                                        label="Pilih file"
+                                                        show-size
+                                                        outlined
+                                                        dense
+                                                    />
+                                                    <v-btn
+                                                        type="submit"
+                                                        color="primary"
+                                                        :disabled="
+                                                            !fileForm.files ||
+                                                            fileForm.files
+                                                                .length === 0
+                                                        "
+                                                        :loading="
+                                                            fileForm.processing
+                                                        "
+                                                        class="mt-3"
+                                                        block
+                                                    >
+                                                        Upload
+                                                    </v-btn>
+                                                </v-form>
+                                            </v-window-item>
+
+                                            <!-- Tab Pilih dari Database -->
+                                            <v-window-item value="existing">
+                                                <div class="mt-4">
+                                                    <v-autocomplete
+                                                        v-model="
+                                                            selectedExistingFile
+                                                        "
+                                                        :items="availableFiles"
+                                                        item-title="file_name"
+                                                        item-value="id"
+                                                        label="Pilih file dari database"
+                                                        outlined
+                                                        dense
+                                                        clearable
+                                                        hide-details
+                                                        class="custom-autocomplete"
+                                                    />
+
+                                                    <v-btn
+                                                        color="success"
+                                                        class="mt-3"
+                                                        block
+                                                        @click="
+                                                            attachExistingFile
+                                                        "
+                                                        :disabled="
+                                                            !selectedExistingFile
+                                                        "
+                                                    >
+                                                        <v-icon left
+                                                            >mdi-link</v-icon
+                                                        >
+                                                        Gunakan File Ini
+                                                    </v-btn>
+                                                </div>
+                                            </v-window-item>
+                                        </v-window>
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-spacer />
+                                        <v-btn
+                                            text
+                                            color="error"
+                                            @click="
+                                                showUploadChoiceModal = false
+                                            "
+                                            >Tutup</v-btn
+                                        >
+                                    </v-card-actions>
+                                </v-card>
+                            </v-dialog>
 
                             <!-- Daftar Files Terupload (Horizontal / Grid) -->
-                            <v-card
+                            <div
                                 v-if="node.files && node.files.length"
-                                class="p-2 rounded-lg shadow-sm"
+                                class="mt-3"
                             >
                                 <h4
                                     class="text-lg font-bold text-gray-800 ml-3"
@@ -159,9 +289,13 @@
                                         <div v-if="isImage(f.file_name)">
                                             <v-img
                                                 :src="`/storage/${f.file_path}`"
-                                                max-width="120"
-                                                max-height="120"
                                                 class="rounded-lg mb-2"
+                                                style="
+                                                    min-width: 120px;
+                                                    min-height: 120px;
+                                                    max-width: 120px;
+                                                    max-height: 120px;
+                                                "
                                                 cover
                                             />
                                         </div>
@@ -203,7 +337,7 @@
                                         </v-btn>
                                     </div>
                                 </div>
-                            </v-card>
+                            </div>
                         </v-card-text>
                     </v-card>
 
@@ -414,10 +548,82 @@ function toggle() {
     expanded.value = !expanded.value;
 }
 
-// form upload
+// form uploa
+const showUploadProgressModal = ref(false);
+const uploadProgress = ref(0);
+
 const fileForm = useForm({
-    files: [],
+    files: null,
 });
+
+// Perbaikan: gunakan fileForm.processing sebagai pengganti fileForm.loading
+const uploadFiles = () => {
+    if (!fileForm.files || fileForm.files.length === 0) return;
+
+    // Validasi ukuran file sebelum upload
+    const maxSize = 20 * 1024 * 1024; // Maksimal 20MB
+    for (let i = 0; i < fileForm.files.length; i++) {
+        const file = fileForm.files[i];
+
+        if (file.size > maxSize) {
+            Swal.fire({
+                icon: "error",
+                title: "File Terlalu Besar",
+                text: `File ${file.name} melebihi ukuran maksimal 20MB.`,
+            });
+            return;
+        }
+    }
+
+    // Tampilkan modal progress sebelum memulai upload
+    showUploadChoiceModal.value = false;
+    showUploadProgressModal.value = true;
+    uploadProgress.value = 0;
+
+    fileForm.post(route("files.store", props.node.id), {
+        forceFormData: true,
+        // Mendapatkan progress upload
+        onProgress: (progressEvent) => {
+            if (progressEvent.lengthComputable) {
+                uploadProgress.value = Math.round(
+                    (progressEvent.loaded * 100) / progressEvent.total
+                );
+            }
+        },
+        onSuccess: () => {
+            fileForm.reset();
+            router.reload({ only: ["nodes"] }); // refresh node
+            Swal.fire({
+                icon: "success",
+                title: "Berhasil",
+                text: "File berhasil diunggah.",
+            });
+            // Tutup modal progress setelah sukses
+            showUploadProgressModal.value = false;
+        },
+        onError: (errors) => {
+            if (errors && errors.files) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Gagal Upload",
+                    text:
+                        errors.files[0] ||
+                        "Terjadi kesalahan saat mengupload file.",
+                });
+            }
+            // Tutup modal progress meskipun gagal
+            showUploadProgressModal.value = false;
+        },
+    });
+};
+
+const cancelUpload = () => {
+    // Fungsi untuk membatalkan proses upload
+    // Karena Inertia.js tidak memiliki metode bawaan untuk membatalkan,
+    // kita hanya bisa menyembunyikan modal dan mereset status
+    fileForm.cancel();
+    showUploadProgressModal.value = false;
+};
 
 const isLeaf = computed(() => {
     return !props.node.children || props.node.children.length === 0;
@@ -451,47 +657,6 @@ const completionPercentage = computed(() => {
     const { done, total } = calculateCompletion(props.node);
     return total > 0 ? Math.round((done / total) * 100) : 0;
 });
-
-const uploadFiles = () => {
-    if (!fileForm.files || fileForm.files.length === 0) return;
-
-    // Validasi ukuran file sebelum upload
-    const maxSize = 20 * 1024 * 1024; // Maksimal 20MB
-    for (let i = 0; i < fileForm.files.length; i++) {
-        const file = fileForm.files[i];
-
-        // Cek apakah ukuran file melebihi batas maksimal
-        if (file.size > maxSize) {
-            Swal.fire({
-                icon: "error",
-                title: "File Terlalu Besar",
-                text: `File ${file.name} melebihi ukuran maksimal 20MB.`,
-            });
-            return; // Batalkan upload jika ada file yang terlalu besar
-        }
-    }
-
-    // Jika tidak ada file yang terlalu besar, lanjutkan upload
-    fileForm.post(route("files.store", props.node.id), {
-        forceFormData: true,
-        onSuccess: () => {
-            fileForm.reset();
-            router.reload({ only: ["nodes"] }); // refresh node agar file terbaru muncul
-        },
-        onError: (errors) => {
-            // Menangani error yang terjadi dari backend
-            if (errors && errors.files) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Gagal Upload",
-                    text:
-                        errors.files[0] ||
-                        "Terjadi kesalahan saat mengupload file.",
-                });
-            }
-        },
-    });
-};
 
 // State untuk Modal Hapus File
 const showDeleteFileModal = ref(false);
@@ -596,6 +761,48 @@ const updateNode = () => {
         },
     });
 };
+
+// FIles Upload
+
+const showUploadChoiceModal = ref(false);
+const uploadTab = ref("new");
+const selectedExistingFile = ref(null);
+
+// Asumsikan file dari database sudah dilempar lewat props atau fetch API
+// Contoh: props.availableFiles = [{id: 1, file_name: 'abc.pdf', file_path: '...'}]
+const availableFiles = ref([]);
+
+const openUploadChoiceModal = async () => {
+    showUploadChoiceModal.value = true;
+    uploadTab.value = "new"; // default tab
+
+    // Ambil data file dari backend
+    try {
+        const res = await axios.get(route("files.available"));
+        availableFiles.value = res.data;
+    } catch (err) {
+        console.error("Gagal load available files:", err);
+    }
+};
+
+// attach file yg sudah ada ke node ini
+const attachExistingFile = () => {
+    if (!selectedExistingFile.value) return;
+
+    router.post(
+        route("files.attach", props.node.id),
+        {
+            file_id: selectedExistingFile.value,
+        },
+        {
+            onSuccess: () => {
+                showUploadChoiceModal.value = false;
+                selectedExistingFile.value = null;
+                router.reload({ only: ["nodes"] });
+            },
+        }
+    );
+};
 </script>
 
 <style scoped>
@@ -637,5 +844,39 @@ const updateNode = () => {
     width: 10px;
     height: 1px;
     background-color: #bdbdbd;
+}
+
+/* custom v-autocomplete */
+.custom-autocomplete {
+    border-radius: 12px; /* sudut melengkung */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* shadow lembut */
+    background: #fff; /* putih bersih */
+    transition: all 0.3s ease;
+}
+
+.custom-autocomplete:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.custom-autocomplete :deep(.v-field) {
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    background-color: #fafafa;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.custom-autocomplete :deep(.v-field:hover) {
+    border-color: #1976d2; /* biru saat hover */
+    background-color: #fff;
+}
+
+.custom-autocomplete :deep(.v-field__input) {
+    font-size: 0.95rem;
+    padding: 6px 12px;
+}
+
+.custom-autocomplete :deep(.v-label) {
+    font-weight: 500;
+    color: #666;
 }
 </style>

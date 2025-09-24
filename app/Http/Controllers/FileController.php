@@ -10,6 +10,43 @@ use Illuminate\Http\Request;
 
 class FileController extends Controller
 {
+
+    public function availableFiles()
+    {
+        $files = File::select('id', 'file_name', 'file_path')
+            ->whereIn('id', function ($query) {
+                $query->selectRaw('MAX(id)')
+                    ->from('files')
+                    ->groupBy('file_name');
+            })
+            ->orderBy('file_name')
+            ->get();
+
+        return response()->json($files);
+    }
+
+
+
+    public function attach(Request $request, Node $node)
+    {
+        $request->validate([
+            'file_id' => 'required|exists:files,id',
+        ]);
+
+        $file = File::findOrFail($request->file_id);
+
+        // buat salinan entry dengan node_id baru
+        File::create([
+            'node_id'   => $node->id,
+            'file_name' => $file->file_name,
+            'file_path' => $file->file_path, // path tetap sama
+            'file_type' => $file->file_type,
+        ]);
+
+        return back()->with('success', 'File berhasil ditautkan ke node.');
+    }
+
+
     public function store(Request $request, $nodeId)
     {
         $request->validate([

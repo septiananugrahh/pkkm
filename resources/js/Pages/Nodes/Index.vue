@@ -86,7 +86,7 @@ function filterNodesRecursively(nodes, query) {
                 .toLowerCase()
                 .includes(query.toLowerCase());
 
-            // Jika node match, tampilkan node + semua children asli
+            // Jika node match → tampilkan node + semua anaknya asli (apapun itu)
             if (match) {
                 return {
                     ...node,
@@ -94,13 +94,13 @@ function filterNodesRecursively(nodes, query) {
                 };
             }
 
-            // Jika node tidak match, periksa children
+            // Jika node tidak match, periksa anaknya (recursive)
             let filteredChildren = [];
             if (node.children && node.children.length > 0) {
                 filteredChildren = filterNodesRecursively(node.children, query);
             }
 
-            // Jika ada child yang match, tampilkan node + child yang match
+            // Kalau ada anak yang match → tampilkan node + anak hasil filter
             if (filteredChildren.length > 0) {
                 return {
                     ...node,
@@ -108,7 +108,7 @@ function filterNodesRecursively(nodes, query) {
                 };
             }
 
-            // Node tidak match dan tidak ada child match → hilangkan
+            // Tidak ada yang match → buang node
             return null;
         })
         .filter((node) => node !== null);

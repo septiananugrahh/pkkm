@@ -1,7 +1,10 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { Link, usePage } from "@inertiajs/vue3";
+import { Link, usePage, router } from "@inertiajs/vue3"; // pakai router
 import axios from "axios";
+import { useLoading } from "@/Composables/useLoading";
+
+const { isLoading } = useLoading();
 
 const page = usePage();
 const mobileMenu = ref(false);
@@ -43,10 +46,19 @@ const isActiveRoute = (routeUrl) => {
         new URL(routeUrl, window.location.origin).pathname
     );
 };
+
+// ✅ Event inertia dengan router
+onMounted(() => {
+    router.on("start", () => (loading.value = true));
+    router.on("finish", () => (loading.value = false));
+});
 </script>
 
 <template>
     <v-app>
+        <div v-if="isLoading" class="overlay">
+            <div class="spinner"></div>
+        </div>
         <!-- Top App Bar -->
         <v-app-bar app dark color="purple accent-4" elevate-on-scroll>
             <v-toolbar-title class="font-bold text-white">PKKM</v-toolbar-title>
@@ -193,5 +205,30 @@ const isActiveRoute = (routeUrl) => {
 <style scoped>
 .v-btn:hover {
     background-color: rgba(255, 255, 255, 0.1);
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid #ccc;
+    border-top: 6px solid #6b21a8;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 </style>
