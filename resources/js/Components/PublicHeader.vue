@@ -7,11 +7,17 @@
             <div class="flex flex-1 items-center justify-end gap-x-6">
                 <!-- Link ke Public Index -->
                 <Link
+                    :href="route('welcome')"
+                    class="text-sm font-semibold leading-6 text-gray-900"
+                >
+                    Home
+                </Link>
+
+                <Link
                     :href="route('show.index')"
                     class="text-sm font-semibold leading-6 text-gray-900"
                 >
-                    Lihat Penilaian Publik
-                    <span aria-hidden="true">&rarr;</span>
+                    Penilaian
                 </Link>
 
                 <!-- Jika sudah login -->
