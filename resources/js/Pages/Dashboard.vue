@@ -21,7 +21,8 @@
                         </p>
 
                         <v-row>
-                            <v-col cols="12" md="4">
+                            <!-- Kolom untuk Total Nodes -->
+                            <v-col cols="12" md="4" class="mb-4">
                                 <v-card
                                     class="d-flex flex-column align-center text-center pa-4"
                                     color="indigo"
@@ -39,7 +40,8 @@
                                 </v-card>
                             </v-col>
 
-                            <v-col cols="12" md="4">
+                            <!-- Kolom untuk Total Files -->
+                            <v-col cols="12" md="4" class="mb-4">
                                 <v-card
                                     class="d-flex flex-column align-center text-center pa-4"
                                     color="teal"
@@ -57,7 +59,8 @@
                                 </v-card>
                             </v-col>
 
-                            <v-col cols="12" md="4">
+                            <!-- Kolom untuk Total Tahun -->
+                            <v-col cols="12" md="4" class="mb-4">
                                 <v-card
                                     class="d-flex flex-column align-center text-center pa-4"
                                     color="purple"
@@ -76,10 +79,10 @@
                             </v-col>
                         </v-row>
 
-                        <div class="mt-8 d-flex justify-center">
+                        <div class="mt-8 d-flex justify-center flex-wrap">
                             <v-btn
                                 color="primary"
-                                class="mr-4"
+                                class="mr-4 mb-4"
                                 large
                                 :href="route('nodes.index')"
                             >
@@ -89,7 +92,7 @@
 
                             <v-btn
                                 color="secondary"
-                                class="mr-4"
+                                class="mr-4 mb-4"
                                 large
                                 :href="route('show.index')"
                                 target="_blank"

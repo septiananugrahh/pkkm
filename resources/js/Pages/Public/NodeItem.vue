@@ -21,33 +21,29 @@
                         v-if="node.files && node.files.length"
                     >
                         <strong>Files:</strong>
-                        <v-list dense>
-                            <v-list-item
-                                v-for="f in node.files"
-                                :key="f.id"
-                                class="flex-column align-start"
-                            >
-                                <div class="d-flex align-center w-100">
-                                    <a
-                                        href="#"
-                                        class="mr-2"
-                                        @click.prevent="openFileViewer(f)"
-                                    >
+                        <v-table density="compact">
+                            <thead>
+                                <tr>
+                                    <th class="text-left">Nama File</th>
+                                    <th class="text-left">Ukuran</th>
+                                    <th class="text-left">Tipe</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    v-for="f in node.files"
+                                    :key="f.id"
+                                    @click="openFileViewer(f)"
+                                    style="cursor: pointer"
+                                >
+                                    <td>
                                         {{ f.file_name }}
-                                    </a>
-                                </div>
-                                <div v-if="isImage(f.file_name)" class="mt-2">
-                                    <v-img
-                                        :src="`/storage/${f.file_path}`"
-                                        max-width="200"
-                                        class="rounded"
-                                        cover
-                                        @click="openFileViewer(f)"
-                                        style="cursor: pointer"
-                                    />
-                                </div>
-                            </v-list-item>
-                        </v-list>
+                                    </td>
+                                    <td>{{ f.size_in_kb }} KB</td>
+                                    <td>{{ f.mime_type }}</td>
+                                </tr>
+                            </tbody>
+                        </v-table>
                     </v-card>
 
                     <!-- Recursive Child -->
