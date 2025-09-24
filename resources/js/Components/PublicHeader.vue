@@ -10,7 +10,7 @@
                     :href="route('welcome')"
                     class="text-sm font-semibold leading-6 text-gray-900"
                 >
-                    Home
+                    Beranda
                 </Link>
 
                 <Link
