@@ -36,6 +36,7 @@
                 :key="node.id"
                 :node="node"
                 @add-child="openModal"
+                @update-completion="handleCompletionUpdate"
             />
         </div>
 
@@ -74,6 +75,33 @@ const props = defineProps({
     years: Array,
     year: [Number, String, null],
 });
+
+// Di script setup NodeTree.vue
+const handleCompletionUpdate = ({ id, isCompleted, isLeaf }) => {
+    // Cari node yang diupdate berdasarkan ID
+    const updatedNode = findNodeById(rootNode.value, id);
+
+    // Perbarui jumlah completed children pada induknya
+    if (updatedNode && updatedNode.parent) {
+        const parent = updatedNode.parent;
+        if (isCompleted) {
+            parent.completed_children_count++;
+        } else {
+            parent.completed_children_count--;
+        }
+        // Dan teruskan ke atas jika perlu...
+    }
+};
+
+// Pastikan Anda memiliki properti parent di setiap node
+const attachParents = (nodes, parent = null) => {
+    nodes.forEach((node) => {
+        node.parent = parent;
+        if (node.children) {
+            attachParents(node.children, node);
+        }
+    });
+};
 
 const searchQuery = ref("");
 

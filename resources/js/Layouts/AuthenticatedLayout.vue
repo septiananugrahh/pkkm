@@ -4,7 +4,7 @@ import { Link, usePage, router } from "@inertiajs/vue3"; // pakai router
 import axios from "axios";
 import { useLoading } from "@/Composables/useLoading";
 
-const { isLoading } = useLoading();
+const { isLoading, startLoading, finishLoading } = useLoading();
 
 const page = usePage();
 const mobileMenu = ref(false);
@@ -49,16 +49,66 @@ const isActiveRoute = (routeUrl) => {
 
 // ✅ Event inertia dengan router
 onMounted(() => {
-    router.on("start", () => (loading.value = true));
-    router.on("finish", () => (loading.value = false));
+    // Gunakan composable untuk mengelola status loading
+    router.on("start", () => startLoading());
+    router.on("finish", () => finishLoading());
 });
 </script>
 
 <template>
     <v-app>
-        <div v-if="isLoading" class="overlay">
-            <div class="spinner"></div>
+        <div v-if="isLoading" class="gear-overlay">
+            <div class="gears-container">
+                <svg
+                    class="gear small-gear"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 100 100"
+                >
+                    <defs>
+                        <linearGradient
+                            id="smallGearGradient"
+                            x1="0%"
+                            y1="0%"
+                            x2="100%"
+                            y2="100%"
+                        >
+                            <stop offset="0%" style="stop-color: #6a1b9a" />
+                            <stop offset="100%" style="stop-color: #9c27b0" />
+                        </linearGradient>
+                    </defs>
+                    <path
+                        d="M50 0 L58.55 12.35 L70.21 12.04 L75.92 23.32 L87.61 24.52 L91.68 35.53 L100 50 L91.68 64.47 L87.61 75.48 L75.92 76.68 L70.21 87.96 L58.55 87.65 L50 100 L41.45 87.65 L29.79 87.96 L24.08 76.68 L12.39 75.48 L8.32 64.47 L0 50 L8.32 35.53 L12.39 24.52 L24.08 23.32 L29.79 12.04 L41.45 12.35 Z"
+                        fill="url(#smallGearGradient)"
+                    />
+                    <circle cx="50" cy="50" r="15" fill="#4a148c" />
+                </svg>
+
+                <svg
+                    class="gear large-gear"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 100 100"
+                >
+                    <defs>
+                        <linearGradient
+                            id="largeGearGradient"
+                            x1="0%"
+                            y1="0%"
+                            x2="100%"
+                            y2="100%"
+                        >
+                            <stop offset="0%" style="stop-color: #8e24aa" />
+                            <stop offset="100%" style="stop-color: #ba68c8" />
+                        </linearGradient>
+                    </defs>
+                    <path
+                        d="M50 0 L58.55 12.35 L70.21 12.04 L75.92 23.32 L87.61 24.52 L91.68 35.53 L100 50 L91.68 64.47 L87.61 75.48 L75.92 76.68 L70.21 87.96 L58.55 87.65 L50 100 L41.45 87.65 L29.79 87.96 L24.08 76.68 L12.39 75.48 L8.32 64.47 L0 50 L8.32 35.53 L12.39 24.52 L24.08 23.32 L29.79 12.04 L41.45 12.35 Z"
+                        fill="url(#largeGearGradient)"
+                    />
+                    <circle cx="50" cy="50" r="15" fill="#4a148c" />
+                </svg>
+            </div>
         </div>
+
         <!-- Top App Bar -->
         <v-app-bar app dark color="purple accent-4" elevate-on-scroll>
             <v-toolbar-title class="font-bold text-white">PKKM</v-toolbar-title>
@@ -207,28 +257,64 @@ onMounted(() => {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-.overlay {
+/* Gaya untuk Overlay */
+.gear-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.9);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 2000;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
 }
 
-.spinner {
-    width: 60px;
-    height: 60px;
-    border: 6px solid #ccc;
-    border-top: 6px solid #6b21a8;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+.gears-container {
+    position: relative;
+    width: 200px; /* Lebar container untuk menampung kedua gear */
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-@keyframes spin {
+/* Base style untuk semua gear SVG */
+.gear {
+    position: absolute;
+    fill: #66bb6a;
+    stroke: #4caf50;
+    stroke-width: 1;
+    transform-origin: center center;
+}
+
+/* Ukuran dan posisi untuk gear kecil */
+.small-gear {
+    width: 80px;
+    height: 80px;
+    left: 20%; /* Pindahkan ke kiri sedikit */
+    animation: rotate-forward 4s infinite linear;
+}
+
+/* Ukuran dan posisi untuk gear besar */
+.large-gear {
+    width: 120px;
+    height: 120px;
+    right: 20%; /* Pindahkan ke kanan sedikit */
+    animation: rotate-reverse 4s infinite linear;
+}
+
+/* Keyframes untuk rotasi ke depan */
+@keyframes rotate-forward {
     to {
         transform: rotate(360deg);
+    }
+}
+
+/* Keyframes untuk rotasi ke belakang */
+@keyframes rotate-reverse {
+    to {
+        transform: rotate(-360deg);
     }
 }
 </style>

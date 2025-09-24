@@ -7,8 +7,7 @@
             </v-col>
             <v-col>
                 <div>
-                    {{ node.title }}
-                    <!-- tampilkan persentase kalau bukan leaf -->
+                    <span style="font-size: 1.1rem"> {{ node.title }} </span>
                     <span
                         v-if="!isLeaf && completionPercentage !== null"
                         class="ml-2 text-sm text-gray-500"
@@ -63,11 +62,9 @@
                         outlined
                     >
                         <v-card-text>
-                            <!-- Status Penilaian -->
-                            <!-- Status Penilaian -->
                             <div
-                                v-if="node.is_completed"
                                 class="mb-4 text-green-600 font-semibold"
+                                v-if="node.is_completed"
                             >
                                 ✅ Input Data: Selesai
                             </div>
@@ -77,21 +74,20 @@
                             </h4>
 
                             <v-row dense align="center">
-                                <!-- Tombol Upload -->
-                                <v-col cols="12" sm="6">
+                                <v-spacer></v-spacer>
+
+                                <v-col cols="auto">
                                     <v-btn
                                         color="primary"
                                         size="large"
-                                        block
+                                        icon
                                         @click="openUploadChoiceModal"
                                     >
-                                        <v-icon start>mdi-upload</v-icon>
-                                        Upload / Pilih File
+                                        <v-icon>mdi-upload</v-icon>
                                     </v-btn>
                                 </v-col>
 
-                                <!-- Tombol Tandai Selesai -->
-                                <v-col cols="12" sm="6">
+                                <v-col cols="auto">
                                     <v-btn
                                         :color="
                                             node.is_completed
@@ -99,21 +95,16 @@
                                                 : 'success'
                                         "
                                         size="large"
-                                        block
+                                        icon
                                         @click.stop="toggleComplete(node)"
                                     >
-                                        <v-icon start>
+                                        <v-icon>
                                             {{
                                                 node.is_completed
                                                     ? "mdi-close-circle"
                                                     : "mdi-check-circle"
                                             }}
                                         </v-icon>
-                                        {{
-                                            node.is_completed
-                                                ? "Batal Selesai"
-                                                : "Tandai Selesai"
-                                        }}
                                     </v-btn>
                                 </v-col>
                             </v-row>
@@ -321,7 +312,9 @@
                                             target="_blank"
                                             @click.prevent="openFileViewer(f)"
                                             class="text-sm text-center text-blue-600 hover:underline break-words"
+                                            style="word-break: break-all"
                                         >
+                                            >
                                             {{ f.file_name }}
                                         </a>
 
@@ -464,13 +457,12 @@ const toggleComplete = (node) => {
                 // Toggle status selesai
                 node.is_completed = !node.is_completed;
 
-                // Kalau parent, hitung ulang jumlah completed children
-                if (props.node.children) {
-                    const completed = props.node.children.filter(
-                        (c) => c.is_completed
-                    ).length;
-                    props.node.children_completed_count = completed;
-                }
+                // Emit event ke parent untuk memperbarui status
+                emit("update-completion", {
+                    id: node.id,
+                    isCompleted: node.is_completed,
+                    isLeaf: !hasChildren.value,
+                });
             },
         }
     );
@@ -537,7 +529,7 @@ const getFileIconColor = (fileName) => {
     }
 };
 
-const emit = defineEmits(["add-child"]);
+const emit = defineEmits(["add-child", "update-completion"]);
 
 const expanded = ref(false);
 const hasChildren = computed(
@@ -590,15 +582,19 @@ const uploadFiles = () => {
                 );
             }
         },
-        onSuccess: () => {
+        onSuccess: (response) => {
+            // Asumsi respons Inertia berisi node yang diupdate
+            const updatedNode = response.props.node;
+            // Gantikan data node saat ini dengan data yang baru dari server
+            // atau tambahkan file baru secara langsung
+            props.node.files = updatedNode.files;
+
             fileForm.reset();
-            router.reload({ only: ["nodes"] }); // refresh node
             Swal.fire({
                 icon: "success",
                 title: "Berhasil",
                 text: "File berhasil diunggah.",
             });
-            // Tutup modal progress setelah sukses
             showUploadProgressModal.value = false;
         },
         onError: (errors) => {
