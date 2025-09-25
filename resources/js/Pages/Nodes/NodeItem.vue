@@ -553,7 +553,7 @@ const uploadFiles = () => {
     if (!fileForm.files || fileForm.files.length === 0) return;
 
     // Validasi ukuran file sebelum upload
-    const maxSize = 20 * 1024 * 1024; // Maksimal 20MB
+    const maxSize = 50 * 1024 * 1024; // Maksimal 20MB
     for (let i = 0; i < fileForm.files.length; i++) {
         const file = fileForm.files[i];
 
@@ -561,7 +561,7 @@ const uploadFiles = () => {
             Swal.fire({
                 icon: "error",
                 title: "File Terlalu Besar",
-                text: `File ${file.name} melebihi ukuran maksimal 20MB.`,
+                text: `File ${file.name} melebihi ukuran maksimal 50MB.`,
             });
             return;
         }
