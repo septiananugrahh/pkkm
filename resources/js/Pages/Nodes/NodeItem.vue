@@ -552,15 +552,13 @@ const fileForm = useForm({
     files: null,
 });
 
-// Perbaikan: gunakan fileForm.processing sebagai pengganti fileForm.loading
 const uploadFiles = () => {
     if (!fileForm.files || fileForm.files.length === 0) return;
 
     // Validasi ukuran file sebelum upload
-    const maxSize = 50 * 1024 * 1024; // Maksimal 20MB
+    const maxSize = 50 * 1024 * 1024; // 50MB
     for (let i = 0; i < fileForm.files.length; i++) {
         const file = fileForm.files[i];
-
         if (file.size > maxSize) {
             Swal.fire({
                 icon: "error",
@@ -578,20 +576,39 @@ const uploadFiles = () => {
 
     fileForm.post(route("files.store", props.node.id), {
         forceFormData: true,
+
         // Mendapatkan progress upload
         onProgress: (progressEvent) => {
             if (progressEvent.lengthComputable) {
                 uploadProgress.value = Math.round(
                     (progressEvent.loaded * 100) / progressEvent.total
                 );
+
+                if (uploadProgress.value === 100) {
+                    console.log(
+                        "⚠️ Upload sudah 100%, menunggu response server..."
+                    );
+
+                    // Fallback auto-close jika stuck di 100%
+                    setTimeout(() => {
+                        if (showUploadProgressModal.value) {
+                            console.warn(
+                                "⚠️ Upload stuck di 100%, auto-close fallback."
+                            );
+                            showUploadProgressModal.value = false;
+                        }
+                    }, 5000);
+                }
             }
         },
+
+        // Jika berhasil
         onSuccess: (response) => {
-            // Asumsi respons Inertia berisi node yang diupdate
-            const updatedNode = response.props.node;
-            // Gantikan data node saat ini dengan data yang baru dari server
-            // atau tambahkan file baru secara langsung
-            props.node.files = updatedNode.files;
+            console.log("✅ Upload sukses:", response);
+
+            if (response?.props?.node) {
+                props.node.files = response.props.node.files;
+            }
 
             fileForm.reset();
             Swal.fire({
@@ -599,29 +616,35 @@ const uploadFiles = () => {
                 title: "Berhasil",
                 text: "File berhasil diunggah.",
             });
-            showUploadProgressModal.value = false;
         },
+
+        // Jika error
         onError: (errors) => {
-            if (errors && errors.files) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Gagal Upload",
-                    text:
-                        errors.files[0] ||
-                        "Terjadi kesalahan saat mengupload file.",
-                });
-            }
-            // Tutup modal progress meskipun gagal
+            console.error("❌ Error upload:", errors);
+            Swal.fire({
+                icon: "error",
+                title: "Gagal Upload",
+                text:
+                    errors?.files?.[0] ||
+                    "Terjadi kesalahan saat mengupload file.",
+            });
+        },
+
+        // Selalu dipanggil (baik sukses/gagal)
+        onFinish: () => {
+            console.log("ℹ️ Upload selesai, modal ditutup.");
             showUploadProgressModal.value = false;
         },
     });
 };
 
 const cancelUpload = () => {
-    // Fungsi untuk membatalkan proses upload
-    // Karena Inertia.js tidak memiliki metode bawaan untuk membatalkan,
-    // kita hanya bisa menyembunyikan modal dan mereset status
-    fileForm.cancel();
+    // useForm tidak punya cancel asli, jadi hanya reset tampilan
+    try {
+        fileForm.cancel();
+    } catch (e) {
+        console.warn("Cancel tidak tersedia di useForm, hanya reset UI.");
+    }
     showUploadProgressModal.value = false;
 };
 

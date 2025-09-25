@@ -5,15 +5,24 @@ const isLoading = ref(false);
 
 export function useLoading() {
     onMounted(() => {
-        router.on("start", () => (isLoading.value = true));
-        router.on("finish", () => (isLoading.value = false));
+        // Use a function to manage the state
+        const start = () => (isLoading.value = true);
+        const finish = () => (isLoading.value = false);
+
+        // Register the listeners and store the cleanup functions
+        const cleanupStart = router.on("start", start);
+        const cleanupFinish = router.on("finish", finish);
+
+        // Clean up listeners when the component is unmounted
+        onUnmounted(() => {
+            cleanupStart();
+            cleanupFinish();
+        });
     });
 
-    onUnmounted(() => {
-        // optional, supaya event listener bersih
-        router.on("start", null);
-        router.on("finish", null);
-    });
-
-    return { isLoading };
+    return {
+        isLoading,
+        startLoading: () => (isLoading.value = true),
+        finishLoading: () => (isLoading.value = false),
+    };
 }
