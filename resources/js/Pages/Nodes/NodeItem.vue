@@ -180,7 +180,7 @@
                                                     <v-file-input
                                                         v-model="fileForm.files"
                                                         multiple
-                                                        accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                                                        accept=".jpg,.jpeg,.png,.pdf"
                                                         label="Pilih file"
                                                         show-size
                                                         outlined
