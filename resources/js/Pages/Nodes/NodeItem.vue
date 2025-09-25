@@ -257,7 +257,7 @@
                                 </v-card>
                             </v-dialog>
 
-                            <!-- Daftar Files Terupload (Horizontal / Grid) -->
+                            <!-- Daftar Files Terupload (Tabel) -->
                             <div
                                 v-if="node.files && node.files.length"
                                 class="mt-3"
@@ -268,34 +268,31 @@
                                     Files Terupload
                                 </h4>
 
-                                <div
-                                    class="grid p-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
+                                <v-data-table
+                                    :headers="fileHeaders"
+                                    :items="node.files"
+                                    item-value="id"
+                                    class="mt-4"
+                                    dense
+                                    hide-default-footer
+                                    @click:row="(_, f) => openFileViewer(f)"
                                 >
-                                    <div
-                                        v-for="f in node.files"
-                                        :key="f.id"
-                                        class="flex flex-col items-center border rounded-lg p-5 shadow-sm hover:shadow-md transition"
-                                    >
-                                        <!-- Thumbnail atau Icon -->
+                                    <!-- Thumbnail Column -->
+                                    <template #item.thumbnail="{ item: f }">
                                         <div v-if="isImage(f.file_name)">
                                             <v-img
                                                 :src="`/storage/${f.file_path}`"
-                                                class="rounded-lg mb-2"
-                                                style="
-                                                    min-width: 120px;
-                                                    min-height: 120px;
-                                                    max-width: 120px;
-                                                    max-height: 120px;
-                                                "
+                                                width="50"
+                                                height="50"
                                                 cover
+                                                class="rounded"
                                             />
                                         </div>
                                         <div
                                             v-else
-                                            class="flex items-center justify-center w-24 h-24 bg-gray-100 rounded-lg mb-2"
+                                            class="flex justify-center items-center w-[50px] h-[50px] bg-gray-100 rounded"
                                         >
                                             <v-icon
-                                                large
                                                 :color="
                                                     getFileIconColor(
                                                         f.file_name
@@ -305,31 +302,32 @@
                                                 {{ getFileIcon(f.file_name) }}
                                             </v-icon>
                                         </div>
+                                    </template>
 
-                                        <!-- Nama File -->
-                                        <a
-                                            :href="`/storage/${f.file_path}`"
-                                            target="_blank"
-                                            @click.prevent="openFileViewer(f)"
-                                            class="text-sm text-center text-blue-600 hover:underline break-words"
-                                            style="word-break: break-all"
+                                    <!-- File Name Column -->
+                                    <template #item.file_name="{ item: f }">
+                                        <span
+                                            class="text-blue-600 hover:underline break-words text-sm cursor-pointer"
+                                            @click.stop="openFileViewer(f)"
                                         >
-                                            >
                                             {{ f.file_name }}
-                                        </a>
+                                        </span>
+                                    </template>
 
-                                        <!-- Tombol Delete -->
+                                    <!-- Delete Action Column -->
+                                    <template #item.actions="{ item: f }">
                                         <v-btn
                                             icon
-                                            small
+                                            size="small"
                                             color="red"
-                                            @click="deleteFile(f.id)"
-                                            class="mt-1"
+                                            @click.stop="deleteFile(f.id)"
                                         >
-                                            <v-icon small>mdi-delete</v-icon>
+                                            <v-icon size="small"
+                                                >mdi-delete</v-icon
+                                            >
                                         </v-btn>
-                                    </div>
-                                </div>
+                                    </template>
+                                </v-data-table>
                             </div>
                         </v-card-text>
                     </v-card>
@@ -430,6 +428,12 @@ import Swal from "sweetalert2"; // Pastikan Anda sudah mengimpor SweetAlert
 const props = defineProps({
     node: { type: Object, required: true },
 });
+
+const fileHeaders = [
+    { text: "Thumbnail", value: "thumbnail", sortable: false },
+    { text: "Nama File", value: "file_name" },
+    { text: "Aksi", value: "actions", sortable: false },
+];
 
 // Perbarui computed isCompletedAll agar sesuai dengan logika persentase
 const isCompletedAll = computed(() => {

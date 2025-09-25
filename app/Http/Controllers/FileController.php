@@ -74,17 +74,21 @@ class FileController extends Controller
 
     public function destroy(File $file)
     {
-        // Gunakan DB transaction untuk memastikan data konsisten
-        // Jika penghapusan gagal, tidak ada yang terhapus
         DB::transaction(function () use ($file) {
-            // Hapus file fisik dari storage
-            Storage::disk('public')->delete($file->file_path);
+            // Cek apakah file_path ini digunakan lebih dari sekali di tabel
+            $duplicateCount = File::where('file_path', $file->file_path)
+                ->where('id', '!=', $file->id)
+                ->count();
 
-            // Hapus record file dari database
+            // Jika hanya ada satu (yaitu file ini sendiri), baru hapus fisik
+            if ($duplicateCount === 0) {
+                Storage::disk('public')->delete($file->file_path);
+            }
+
+            // Hapus entri file dari database
             $file->delete();
         });
 
-        // Redirect kembali dengan pesan sukses atau respons Inertia
         return back()->with('success', 'File berhasil dihapus.');
     }
 }
