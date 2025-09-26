@@ -41,7 +41,7 @@
                 class="max-w-7xl mx-auto px-6 lg:px-8 text-center text-gray-500 text-sm"
             >
                 <p>
-                    © SAICPonorogo 2025 &mdash; App development by
+                    © MI Alam IC Ponorogo 2025 &mdash; App development by
                     <span class="font-semibold text-gray-700">Unnamed</span>
                 </p>
             </div>

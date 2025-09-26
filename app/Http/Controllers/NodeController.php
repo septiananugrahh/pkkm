@@ -55,6 +55,7 @@ class NodeController extends Controller
         // Pastikan Anda juga mengirimkan data tahun yang relevan ke view
         $years = Year::all();
 
+
         return inertia('Nodes/Index', [
             'nodes' => $nodes,
             'years' => $years,

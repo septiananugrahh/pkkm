@@ -42,6 +42,8 @@ class DashboardController extends Controller
             ? round(($completed / $leafNodes->count()) * 100, 2)
             : 0;
 
+
+
         return inertia('Dashboard', [
             'totalNodes' => $totalNodes,
             'totalFiles' => $totalFiles,

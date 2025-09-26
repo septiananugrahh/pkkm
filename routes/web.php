@@ -21,9 +21,9 @@ Route::get('/', function () {
     ]);
 })->name('welcome'); // Add ->name('welcome') here.
 
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
 
 
 Route::middleware('auth')->group(function () {

@@ -54,405 +54,207 @@ onMounted(() => {
 
 <template>
     <v-app>
-        <div v-if="isLoading" class="spinner-overlay">
-            <div class="container">
-                <svg
-                    class="machine"
-                    xmlns="http://www.w3.org/2000/svg"
-                    x="0px"
-                    y="0px"
-                    viewBox="0 0 645 526"
-                >
-                    <defs />
-                    <g>
-                        <path
-                            x="-173,694"
-                            y="-173,694"
-                            class="large-shadow"
-                            d="M645 194v-21l-29-4c-1-10-3-19-6-28l25-14 -8-19 -28 7c-5-8-10-16-16-24L602 68l-15-15 -23 17c-7-6-15-11-24-16l7-28 -19-8 -14 25c-9-3-18-5-28-6L482 10h-21l-4 29c-10 1-19 3-28 6l-14-25 -19 8 7 28c-8 5-16 10-24 16l-23-17L341 68l17 23c-6 7-11 15-16 24l-28-7 -8 19 25 14c-3 9-5 18-6 28l-29 4v21l29 4c1 10 3 19 6 28l-25 14 8 19 28-7c5 8 10 16 16 24l-17 23 15 15 23-17c7 6 15 11 24 16l-7 28 19 8 14-25c9 3 18 5 28 6l4 29h21l4-29c10-1 19-3 28-6l14 25 19-8 -7-28c8-5 16-10 24-16l23 17 15-15 -17-23c6-7 11-15 16-24l28 7 8-19 -25-14c3-9 5-18 6-28L645 194zM471 294c-61 0-110-49-110-110S411 74 471 74s110 49 110 110S532 294 471 294z"
-                        />
-                    </g>
-                    <g>
-                        <path
-                            x="-136,996"
-                            y="-136,996"
-                            class="medium-shadow"
-                            d="M402 400v-21l-28-4c-1-10-4-19-7-28l23-17 -11-18L352 323c-6-8-13-14-20-20l11-26 -18-11 -17 23c-9-4-18-6-28-7l-4-28h-21l-4 28c-10 1-19 4-28 7l-17-23 -18 11 11 26c-8 6-14 13-20 20l-26-11 -11 18 23 17c-4 9-6 18-7 28l-28 4v21l28 4c1 10 4 19 7 28l-23 17 11 18 26-11c6 8 13 14 20 20l-11 26 18 11 17-23c9 4 18 6 28 7l4 28h21l4-28c10-1 19-4 28-7l17 23 18-11 -11-26c8-6 14-13 20-20l26 11 11-18 -23-17c4-9 6-18 7-28L402 400zM265 463c-41 0-74-33-74-74 0-41 33-74 74-74 41 0 74 33 74 74C338 430 305 463 265 463z"
-                        />
-                    </g>
-                    <g>
-                        <path
-                            x="-100,136"
-                            y="-100,136"
-                            class="small-shadow"
-                            d="M210 246v-21l-29-4c-2-10-6-18-11-26l18-23 -15-15 -23 18c-8-5-17-9-26-11l-4-29H100l-4 29c-10 2-18 6-26 11l-23-18 -15 15 18 23c-5 8-9 17-11 26L10 225v21l29 4c2 10 6 18 11 26l-18 23 15 15 23-18c8 5 17 9 26 11l4 29h21l4-29c10-2 18-6 26-11l23 18 15-15 -18-23c5-8 9-17 11-26L210 246zM110 272c-20 0-37-17-37-37s17-37 37-37c20 0 37 17 37 37S131 272 110 272z"
-                        />
-                    </g>
-                    <g>
-                        <path
-                            x="-100,136"
-                            y="-100,136"
-                            class="small"
-                            d="M200 236v-21l-29-4c-2-10-6-18-11-26l18-23 -15-15 -23 18c-8-5-17-9-26-11l-4-29H90l-4 29c-10 2-18 6-26 11l-23-18 -15 15 18 23c-5 8-9 17-11 26L0 215v21l29 4c2 10 6 18 11 26l-18 23 15 15 23-18c8 5 17 9 26 11l4 29h21l4-29c10-2 18-6 26-11l23 18 15-15 -18-23c5-8 9-17 11-26L200 236zM100 262c-20 0-37-17-37-37s17-37 37-37c20 0 37 17 37 37S121 262 100 262z"
-                        />
-                    </g>
-                    <g>
-                        <path
-                            x="-173,694"
-                            y="-173,694"
-                            class="large"
-                            d="M635 184v-21l-29-4c-1-10-3-19-6-28l25-14 -8-19 -28 7c-5-8-10-16-16-24L592 58l-15-15 -23 17c-7-6-15-11-24-16l7-28 -19-8 -14 25c-9-3-18-5-28-6L472 0h-21l-4 29c-10 1-19 3-28 6L405 9l-19 8 7 28c-8 5-16 10-24 16l-23-17L331 58l17 23c-6 7-11 15-16 24l-28-7 -8 19 25 14c-3 9-5 18-6 28l-29 4v21l29 4c1 10 3 19 6 28l-25 14 8 19 28-7c5 8 10 16 16 24l-17 23 15 15 23-17c7 6 15 11 24 16l-7 28 19 8 14-25c9 3 18 5 28 6l4 29h21l4-29c10-1 19-3 28-6l14 25 19-8 -7-28c8-5 16-10 24-16l23 17 15-15 -17-23c6-7 11-15 16-24l28 7 8-19 -25-14c3-9 5-18 6-28L635 184zM461 284c-61 0-110-49-110-110S401 64 461 64s110 49 110 110S522 284 461 284z"
-                        />
-                    </g>
-                    <g>
-                        <path
-                            x="-136,996"
-                            y="-136,996"
-                            class="medium"
-                            d="M392 390v-21l-28-4c-1-10-4-19-7-28l23-17 -11-18L342 313c-6-8-13-14-20-20l11-26 -18-11 -17 23c-9-4-18-6-28-7l-4-28h-21l-4 28c-10 1-19 4-28 7l-17-23 -18 11 11 26c-8 6-14 13-20 20l-26-11 -11 18 23 17c-4 9-6 18-7 28l-28 4v21l28 4c1 10 4 19 7 28l-23 17 11 18 26-11c6 8 13 14 20 20l-11 26 18 11 17-23c9 4 18 6 28 7l4 28h21l4-28c10-1 19-4 28-7l17 23 18-11 -11-26c8-6 14-13 20-20l26 11 11-18 -23-17c4-9 6-18 7-28L392 390zM255 453c-41 0-74-33-74-74 0-41 33-74 74-74 41 0 74 33 74 74C328 420 295 453 255 453z"
-                        />
-                    </g>
-                </svg>
-            </div>
+        <!-- Simplified Loading Spinner -->
+        <div v-if="isLoading" class="loading-overlay">
+            <div class="loading-spinner"></div>
         </div>
 
-        <v-app-bar app dark color="purple accent-4" elevate-on-scroll>
-            <v-toolbar-title class="font-bold text-white">PKKM</v-toolbar-title>
+        <!-- Lightweight App Bar -->
+        <v-app-bar
+            app
+            elevation="0"
+            height="64"
+            color="#B794F6"
+            class="app-header"
+        >
+            <div class="d-flex align-center">
+                <v-icon color="white" class="mr-2">mdi-cog</v-icon>
+                <v-toolbar-title class="text-white font-weight-bold">
+                    PKKM
+                </v-toolbar-title>
+            </div>
+
             <v-spacer />
 
             <v-app-bar-nav-icon
                 v-if="isMobile"
                 @click="mobileMenu = !mobileMenu"
+                color="white"
             />
 
-            <div v-if="!isMobile" class="flex">
+            <!-- Desktop Navigation - Simplified -->
+            <div v-if="!isMobile" class="d-flex">
                 <Link
                     v-for="item in menuItems"
                     :key="item.name"
                     :href="item.route"
-                    class="mx-1"
                 >
                     <v-btn
-                        text
-                        class="text-white font-medium"
-                        :class="{
-                            'bg-purple-700 rounded-lg px-3': isActiveRoute(
-                                item.route
-                            ),
-                        }"
+                        variant="text"
+                        color="white"
+                        class="mx-1 nav-btn"
+                        :class="{ 'nav-active': isActiveRoute(item.route) }"
                     >
-                        <v-icon left>{{ item.icon }}</v-icon>
+                        <v-icon size="small" class="mr-1">{{
+                            item.icon
+                        }}</v-icon>
                         {{ item.name }}
                     </v-btn>
                 </Link>
             </div>
 
+            <!-- User Menu - Simplified -->
             <v-menu offset-y>
-                <template #activator="{ props: menuProps, on: menuOn }">
+                <template #activator="{ props }">
                     <v-btn
-                        v-bind="menuProps"
-                        v-on="menuOn"
-                        text
-                        class="ml-2 text-white"
+                        v-bind="props"
+                        variant="text"
+                        color="white"
+                        class="ml-2"
                     >
                         {{ page.props.auth.user.name }}
-                        <v-icon end>mdi-menu-down</v-icon>
+                        <v-icon size="small" class="ml-1"
+                            >mdi-chevron-down</v-icon
+                        >
                     </v-btn>
                 </template>
 
-                <v-list dense>
+                <v-list density="compact">
                     <v-list-item>
                         <Link
                             :href="route('profile.edit')"
-                            class="flex items-center gap-2 w-full text-left text-sm font-medium"
+                            class="d-flex align-center text-decoration-none"
                         >
-                            <v-icon>mdi-account</v-icon>
+                            <v-icon size="small" class="mr-2"
+                                >mdi-account</v-icon
+                            >
                             Profile
                         </Link>
                     </v-list-item>
-
-                    <v-list-item>
-                        <v-btn
-                            @click="logout"
-                            text
-                            class="w-full justify-start text-left text-sm font-medium flex items-center gap-2 text-red-600"
+                    <v-list-item @click="logout">
+                        <v-icon size="small" class="mr-2 text-red"
+                            >mdi-logout</v-icon
                         >
-                            <v-icon>mdi-logout</v-icon>
-                            Logout
-                        </v-btn>
+                        <span class="text-red">Logout</span>
                     </v-list-item>
                 </v-list>
             </v-menu>
         </v-app-bar>
 
+        <!-- Lightweight Mobile Navigation -->
         <v-navigation-drawer
             v-if="isMobile"
             v-model="mobileMenu"
             temporary
-            right
+            location="right"
             app
+            width="260"
         >
-            <v-list nav dense>
+            <v-list nav density="compact">
+                <v-list-subheader class="text-purple-darken-2 font-weight-bold">
+                    Menu Navigasi
+                </v-list-subheader>
+
                 <Link
                     v-for="item in menuItems"
                     :key="item.name"
                     :href="item.route"
-                    :class="{
-                        'bg-purple-100 rounded-lg': isActiveRoute(item.route),
-                    }"
                     as="div"
                 >
                     <v-list-item
-                        link
-                        class="flex items-center gap-2 text-sm font-medium"
+                        :class="{
+                            'bg-purple-lighten-4': isActiveRoute(item.route),
+                        }"
                     >
-                        <v-list-item-icon>
+                        <template v-slot:prepend>
                             <v-icon>{{ item.icon }}</v-icon>
-                        </v-list-item-icon>
+                        </template>
                         <v-list-item-title>{{ item.name }}</v-list-item-title>
                     </v-list-item>
                 </Link>
 
                 <v-divider class="my-2" />
 
-                <Link
-                    :href="route('profile.edit')"
-                    as="div"
-                    class="flex items-center gap-2 text-sm font-medium"
-                >
-                    <v-list-item link>
-                        <v-list-item-icon>
+                <Link :href="route('profile.edit')" as="div">
+                    <v-list-item>
+                        <template v-slot:prepend>
                             <v-icon>mdi-account</v-icon>
-                        </v-list-item-icon>
+                        </template>
                         <v-list-item-title>Profile</v-list-item-title>
                     </v-list-item>
                 </Link>
 
-                <v-list-item
-                    @click="logout"
-                    link
-                    class="flex items-center gap-2 text-sm font-medium text-red-600"
-                >
-                    <v-list-item-icon>
-                        <v-icon>mdi-logout</v-icon>
-                    </v-list-item-icon>
-                    <v-list-item-title>Logout</v-list-item-title>
+                <v-list-item @click="logout">
+                    <template v-slot:prepend>
+                        <v-icon color="red">mdi-logout</v-icon>
+                    </template>
+                    <v-list-item-title class="text-red"
+                        >Logout</v-list-item-title
+                    >
                 </v-list-item>
             </v-list>
         </v-navigation-drawer>
 
-        <v-main>
-            <div
-                class="min-h-screen py-6 px-4 sm:px-6 lg:px-8"
-                style="
-                    background: linear-gradient(
-                        135deg,
-                        #f3e8ff 0%,
-                        #c4b5fd 100%
-                    );
-                "
-            >
-                <div class="mb-6">
+        <!-- Optimized Main Content -->
+        <v-main class="main-content">
+            <div class="pa-4">
+                <div v-if="$slots.header" class="mb-4">
                     <slot name="header"></slot>
                 </div>
 
-                <div class="bg-white/80 p-6 rounded-xl shadow-lg">
-                    <slot></slot>
-                </div>
+                <v-card class="content-card" elevation="2">
+                    <v-card-text class="pa-6">
+                        <slot></slot>
+                    </v-card-text>
+                </v-card>
             </div>
         </v-main>
     </v-app>
 </template>
 
 <style scoped>
-.v-btn:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+/* Minimal, performance-focused styles */
+.app-header {
+    background: linear-gradient(90deg, #b794f6 0%, #d8b4fe 100%) !important;
 }
 
-body,
-html {
-    width: 100%;
-    height: 100%;
-    background-color: #ffffff;
+.nav-btn {
+    text-transform: none !important;
+    border-radius: 8px !important;
 }
 
-.container {
-    height: 100%;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-    -ms-flex-pack: center;
-    justify-content: center;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-    -ms-flex-align: center;
-    align-items: center;
+.nav-active {
+    background-color: rgba(255, 255, 255, 0.2) !important;
 }
 
-.machine {
-    width: 60vmin;
-    fill: #4a148c;
+.main-content {
+    background: linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%);
 }
 
-.small-shadow,
-.medium-shadow,
-.large-shadow {
-    fill: rgba(0, 0, 0, 0.05);
+.content-card {
+    border-radius: 16px !important;
+    background-color: rgba(255, 255, 255, 0.95) !important;
 }
 
-.small {
-    -webkit-animation: counter-rotation 2.5s infinite linear;
-    -moz-animation: counter-rotation 2.5s infinite linear;
-    -o-animation: counter-rotation 2.5s infinite linear;
-    animation: counter-rotation 2.5s infinite linear;
-    -webkit-transform-origin: 100.136px 225.345px;
-    -ms-transform-origin: 100.136px 225.345px;
-    transform-origin: 100.136px 225.345px;
-}
-
-.small-shadow {
-    -webkit-animation: counter-rotation 2.5s infinite linear;
-    -moz-animation: counter-rotation 2.5s infinite linear;
-    -o-animation: counter-rotation 2.5s infinite linear;
-    animation: counter-rotation 2.5s infinite linear;
-    -webkit-transform-origin: 110.136px 235.345px;
-    -ms-transform-origin: 110.136px 235.345px;
-    transform-origin: 110.136px 235.345px;
-}
-
-.medium {
-    -webkit-animation: rotation 3.75s infinite linear;
-    -moz-animation: rotation 3.75s infinite linear;
-    -o-animation: rotation 3.75s infinite linear;
-    animation: rotation 3.75s infinite linear;
-    -webkit-transform-origin: 254.675px 379.447px;
-    -ms-transform-origin: 254.675px 379.447px;
-    transform-origin: 254.675px 379.447px;
-}
-
-.medium-shadow {
-    -webkit-animation: rotation 3.75s infinite linear;
-    -moz-animation: rotation 3.75s infinite linear;
-    -o-animation: rotation 3.75s infinite linear;
-    animation: rotation 3.75s infinite linear;
-    -webkit-transform-origin: 264.675px 389.447px;
-    -ms-transform-origin: 264.675px 389.447px;
-    transform-origin: 264.675px 389.447px;
-}
-
-.large {
-    -webkit-animation: counter-rotation 5s infinite linear;
-    -moz-animation: counter-rotation 5s infinite linear;
-    -o-animation: counter-rotation 5s infinite linear;
-    animation: counter-rotation 5s infinite linear;
-    -webkit-transform-origin: 461.37px 173.694px;
-    -ms-transform-origin: 461.37px 173.694px;
-    transform-origin: 461.37px 173.694px;
-}
-
-.large-shadow {
-    -webkit-animation: counter-rotation 5s infinite linear;
-    -moz-animation: counter-rotation 5s infinite linear;
-    -o-animation: counter-rotation 5s infinite linear;
-    animation: counter-rotation 5s infinite linear;
-    -webkit-transform-origin: 471.37px 183.694px;
-    -ms-transform-origin: 471.37px 183.694px;
-    transform-origin: 471.37px 183.694px;
-}
-
-@-webkit-keyframes rotation {
-    from {
-        -webkit-transform: rotate(0deg);
-    }
-    to {
-        -webkit-transform: rotate(359deg);
-    }
-}
-@-moz-keyframes rotation {
-    from {
-        -moz-transform: rotate(0deg);
-    }
-    to {
-        -moz-transform: rotate(359deg);
-    }
-}
-@-o-keyframes rotation {
-    from {
-        -o-transform: rotate(0deg);
-    }
-    to {
-        -o-transform: rotate(359deg);
-    }
-}
-@keyframes rotation {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(359deg);
-    }
-}
-
-@-webkit-keyframes counter-rotation {
-    from {
-        -webkit-transform: rotate(359deg);
-    }
-    to {
-        -webkit-transform: rotate(0deg);
-    }
-}
-@-moz-keyframes counter-rotation {
-    from {
-        -moz-transform: rotate(359deg);
-    }
-    to {
-        -moz-transform: rotate(0deg);
-    }
-}
-@-o-keyframes counter-rotation {
-    from {
-        -o-transform: rotate(359deg);
-    }
-    to {
-        -o-transform: rotate(0deg);
-    }
-}
-@keyframes counter-rotation {
-    from {
-        transform: rotate(359deg);
-    }
-    to {
-        transform: rotate(0deg);
-    }
-}
-
-/* Gaya untuk Overlay Spinner */
-.spinner-overlay {
+/* Lightweight loading spinner */
+.loading-overlay {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background-color: rgba(255, 255, 255, 0.9);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 2000;
-    pointer-events: none;
-    transition: opacity 0.5s ease;
-}
-
-.spinner-container {
-    width: 60px;
-    height: 60px;
-    position: relative;
+    z-index: 9999;
 }
 
 .loading-spinner {
-    width: 60px;
-    height: 60px;
-    border: 6px solid #e0b0ff; /* Border luar */
-    border-top: 6px solid #4a148c; /* Bagian atas yang berputar */
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e0e7ff;
+    border-top: 3px solid #b794f6;
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
@@ -464,5 +266,36 @@ html {
     100% {
         transform: rotate(360deg);
     }
+}
+
+/* Minimal hover effects */
+.nav-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.v-list-item:hover {
+    background-color: rgba(183, 148, 246, 0.1) !important;
+}
+
+/* Remove heavy transitions and effects */
+* {
+    transition: none !important;
+}
+
+/* Only essential transitions */
+.nav-btn,
+.v-list-item {
+    transition: background-color 0.2s ease !important;
+}
+
+/* Optimize scrolling */
+.main-content {
+    scroll-behavior: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Remove backdrop filters and heavy shadows */
+.content-card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 }
 </style>
