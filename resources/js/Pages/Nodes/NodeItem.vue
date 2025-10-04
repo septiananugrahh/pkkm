@@ -180,7 +180,7 @@
 
                                 <v-divider></v-divider>
                                 <div
-                                    style="max-height: 300px; overflow-y: auto"
+                                    style="max-height: 400px; overflow-y: auto"
                                 >
                                     <v-data-table
                                         :headers="fileHeaders"
@@ -188,6 +188,7 @@
                                         item-value="id"
                                         density="compact"
                                         hide-default-footer
+                                        :items-per-page="-1"
                                         class="files-table"
                                         @click:row="
                                             (_, { item }) =>
