@@ -179,73 +179,81 @@
                                 </v-card-title>
 
                                 <v-divider></v-divider>
-
-                                <v-data-table
-                                    :headers="fileHeaders"
-                                    :items="node.files"
-                                    item-value="id"
-                                    density="compact"
-                                    hide-default-footer
-                                    class="files-table"
-                                    @click:row="
-                                        (_, { item }) => openFileViewer(item)
-                                    "
+                                <div
+                                    style="max-height: 300px; overflow-y: auto"
                                 >
-                                    <template #item.thumbnail="{ item: f }">
-                                        <div class="thumbnail-container">
-                                            <v-img
-                                                v-if="isImage(f.file_name)"
-                                                :src="`/storage/${f.file_path}`"
-                                                width="40"
-                                                height="40"
-                                                cover
-                                                class="rounded-lg"
-                                            />
-                                            <div
-                                                v-else
-                                                class="file-icon-container"
-                                            >
-                                                <v-icon
-                                                    :color="
-                                                        getFileIconColor(
-                                                            f.file_name
-                                                        )
-                                                    "
-                                                    size="24"
+                                    <v-data-table
+                                        :headers="fileHeaders"
+                                        :items="node.files"
+                                        item-value="id"
+                                        density="compact"
+                                        hide-default-footer
+                                        class="files-table"
+                                        @click:row="
+                                            (_, { item }) =>
+                                                openFileViewer(item)
+                                        "
+                                    >
+                                        <template #item.thumbnail="{ item: f }">
+                                            <div class="thumbnail-container">
+                                                <v-img
+                                                    v-if="isImage(f.file_name)"
+                                                    :src="`/storage/${f.file_path}`"
+                                                    width="40"
+                                                    height="40"
+                                                    cover
+                                                    class="rounded-lg"
+                                                />
+                                                <div
+                                                    v-else
+                                                    class="file-icon-container"
                                                 >
-                                                    {{
-                                                        getFileIcon(f.file_name)
-                                                    }}
-                                                </v-icon>
+                                                    <v-icon
+                                                        :color="
+                                                            getFileIconColor(
+                                                                f.file_name
+                                                            )
+                                                        "
+                                                        size="24"
+                                                    >
+                                                        {{
+                                                            getFileIcon(
+                                                                f.file_name
+                                                            )
+                                                        }}
+                                                    </v-icon>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </template>
+                                        </template>
 
-                                    <template #item.file_name="{ item: f }">
-                                        <div class="file-name-cell">
-                                            <span
-                                                class="file-name-link"
-                                                @click.stop="openFileViewer(f)"
-                                            >
-                                                {{ f.file_name }}
-                                            </span>
-                                        </div>
-                                    </template>
+                                        <template #item.file_name="{ item: f }">
+                                            <div class="file-name-cell">
+                                                <span
+                                                    class="file-name-link"
+                                                    @click.stop="
+                                                        openFileViewer(f)
+                                                    "
+                                                >
+                                                    {{ f.file_name }}
+                                                </span>
+                                            </div>
+                                        </template>
 
-                                    <template #item.actions="{ item: f }">
-                                        <v-btn
-                                            icon
-                                            size="small"
-                                            color="red"
-                                            variant="text"
-                                            @click.stop="deleteFile(f.id)"
-                                        >
-                                            <v-icon size="small"
-                                                >mdi-delete</v-icon
+                                        <template #item.actions="{ item: f }">
+                                            <v-btn
+                                                icon
+                                                size="small"
+                                                color="red"
+                                                variant="text"
+                                                @click.stop="deleteFile(f.id)"
                                             >
-                                        </v-btn>
-                                    </template>
-                                </v-data-table>
+                                                <v-icon size="small"
+                                                    >mdi-delete</v-icon
+                                                >
+                                            </v-btn>
+                                        </template>
+                                    </v-data-table>
+                                </div>
                             </v-card>
                         </div>
 
