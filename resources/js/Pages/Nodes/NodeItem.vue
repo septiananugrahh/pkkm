@@ -1,5 +1,6 @@
 <template>
     <div class="node-item">
+        <!-- <div class="node-item" :style="{ zoom: 0.9 }"> -->
         <!-- Node Header -->
         <v-card
             class="node-header-card mb-2"
@@ -794,6 +795,9 @@ const toggleComplete = (node) => {
         route("nodes.toggleComplete", { node: node.id }),
         {},
         {
+            preserveScroll: true,
+            preserveState: true,
+            only: ["nodes"],
             onSuccess: () => {
                 node.is_completed = !node.is_completed;
                 emit("update-completion", {
@@ -903,10 +907,12 @@ const attachExistingFile = () => {
         route("files.attach", props.node.id),
         { file_id: selectedExistingFile.value },
         {
+            preserveScroll: true,
+            preserveState: true,
             onSuccess: () => {
                 showUploadChoiceModal.value = false;
                 selectedExistingFile.value = null;
-                router.reload({ only: ["nodes"] });
+                router.reload({ only: ["nodes"], preserveScroll: true });
             },
         }
     );
@@ -1083,6 +1089,8 @@ const uploadFiles = () => {
                 );
             }
         },
+        preserveScroll: true,
+        preserveState: true,
         onSuccess: (response) => {
             if (response?.props?.node) {
                 props.node.files = response.props.node.files;
@@ -1180,6 +1188,9 @@ const confirmDeleteFile = () => {
 
     showDeleteFileModal.value = false;
     router.delete(route("files.destroy", fileIdToDelete.value), {
+        preserveScroll: true,
+        preserveState: true,
+        only: ["nodes"],
         onSuccess: () => {
             const fileIndex = props.node.files.findIndex(
                 (f) => f.id === fileIdToDelete.value
