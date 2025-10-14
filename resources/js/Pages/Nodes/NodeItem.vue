@@ -1,6 +1,7 @@
 <template>
     <div class="node-item">
         <!-- <div class="node-item" :style="{ zoom: 0.9 }"> -->
+
         <!-- Node Header -->
         <v-card
             class="node-header-card mb-2"
