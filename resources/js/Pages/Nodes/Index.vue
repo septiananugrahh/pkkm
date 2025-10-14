@@ -529,7 +529,7 @@ const reload = () => {
 }
 
 .tree-content {
-    max-height: 600px;
+    /* max-height: 600px; */
     overflow-y: auto;
 }
 
