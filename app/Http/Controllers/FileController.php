@@ -53,22 +53,27 @@ class FileController extends Controller
             'files.*' => 'required|mimes:jpg,jpeg,png,pdf,doc,docx,ppt,pptx|max:51200'
         ], [
             'files.*.max' => 'File terlalu besar. Maksimal ukuran file adalah 50MB.',
-            'files.*.mimes' => 'Tipe file tidak didukung. Harap upload file dengan ekstensi jpg, jpeg, png, pdf, doc, atau docx.'
+            'files.*.mimes' => 'Tipe file tidak didukung. Harap upload file dengan ekstensi jpg, jpeg, png, pdf, doc, docx, ppt, atau pptx.'
         ]);
 
+        $uploadedCount = 0;
+        $uploadedFiles = [];
 
         foreach ($request->file('files') as $file) {
             $path = $file->store('uploads/files', 'public');
 
-            File::create([
+            $fileRecord = File::create([
                 'node_id'   => $nodeId,
                 'file_name' => $file->getClientOriginalName(),
                 'file_path' => $path,
                 'file_type' => $file->getClientOriginalExtension(),
             ]);
+
+            $uploadedFiles[] = $fileRecord;
+            $uploadedCount++;
         }
 
-        return back()->with('success', 'Files uploaded successfully');
+        return back()->with('success', "$uploadedCount file(s) berhasil diunggah");
     }
 
 

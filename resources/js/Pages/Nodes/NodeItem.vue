@@ -355,35 +355,185 @@
 
                     <v-window v-model="uploadTab" class="upload-window">
                         <!-- Tab Upload Baru -->
+                        <!-- Tab Upload Baru -->
                         <v-window-item value="new" class="pa-6">
                             <v-form @submit.prevent="uploadFiles">
+                                <!-- Drop Zone -->
+                                <div
+                                    class="drop-zone"
+                                    :class="{ 'drop-zone-active': isDragging }"
+                                    @dragenter="handleDragEnter"
+                                    @dragleave="handleDragLeave"
+                                    @dragover="handleDragOver"
+                                    @drop="handleDrop"
+                                    @click="
+                                        $refs.fileInput.$el
+                                            .querySelector('input')
+                                            .click()
+                                    "
+                                >
+                                    <div class="drop-zone-content">
+                                        <v-icon
+                                            :color="
+                                                isDragging
+                                                    ? 'purple'
+                                                    : 'grey-lighten-1'
+                                            "
+                                            size="64"
+                                            class="mb-4"
+                                        >
+                                            {{
+                                                isDragging
+                                                    ? "mdi-cloud-upload"
+                                                    : "mdi-cloud-upload-outline"
+                                            }}
+                                        </v-icon>
+
+                                        <h3
+                                            class="text-h6 mb-2"
+                                            :class="
+                                                isDragging
+                                                    ? 'text-purple'
+                                                    : 'text-grey-darken-1'
+                                            "
+                                        >
+                                            {{
+                                                isDragging
+                                                    ? "Lepas file di sini"
+                                                    : "Drag & Drop file di sini"
+                                            }}
+                                        </h3>
+
+                                        <p class="text-body-2 text-grey mb-4">
+                                            atau klik untuk memilih file
+                                        </p>
+
+                                        <v-chip
+                                            v-if="
+                                                fileForm.files &&
+                                                fileForm.files.length > 0
+                                            "
+                                            color="purple"
+                                            variant="tonal"
+                                            size="small"
+                                        >
+                                            <v-icon size="small" class="mr-1"
+                                                >mdi-file-multiple</v-icon
+                                            >
+                                            {{ fileForm.files.length }} file
+                                            dipilih
+                                        </v-chip>
+                                    </div>
+                                </div>
+
+                                <!-- File Input (Hidden) -->
                                 <v-file-input
+                                    ref="fileInput"
                                     v-model="fileForm.files"
                                     multiple
                                     accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.ppt,.pptx"
-                                    label="Pilih file untuk diunggah"
                                     variant="outlined"
                                     color="purple"
                                     density="comfortable"
                                     show-size
                                     prepend-icon="mdi-paperclip"
-                                    class="file-input mb-4"
+                                    class="file-input mt-4"
+                                    style="display: none"
                                 ></v-file-input>
 
+                                <!-- File List Preview -->
+                                <div
+                                    v-if="
+                                        fileForm.files &&
+                                        fileForm.files.length > 0
+                                    "
+                                    class="file-list-preview mt-4"
+                                >
+                                    <v-card variant="outlined" class="pa-3">
+                                        <div class="d-flex align-center mb-3">
+                                            <v-icon color="purple" class="mr-2"
+                                                >mdi-file-multiple</v-icon
+                                            >
+                                            <span
+                                                class="text-subtitle-2 font-weight-bold"
+                                            >
+                                                File yang akan diupload ({{
+                                                    fileForm.files.length
+                                                }})
+                                            </span>
+                                            <v-spacer></v-spacer>
+                                            <v-btn
+                                                icon
+                                                size="x-small"
+                                                variant="text"
+                                                color="grey"
+                                                @click.stop="
+                                                    fileForm.files = null
+                                                "
+                                            >
+                                                <v-icon size="small"
+                                                    >mdi-close</v-icon
+                                                >
+                                            </v-btn>
+                                        </div>
+
+                                        <v-divider class="mb-3"></v-divider>
+
+                                        <div class="file-preview-list">
+                                            <div
+                                                v-for="(
+                                                    file, index
+                                                ) in fileForm.files"
+                                                :key="index"
+                                                class="file-preview-item"
+                                            >
+                                                <v-icon
+                                                    :color="
+                                                        getFileIconColor(
+                                                            file.name
+                                                        )
+                                                    "
+                                                    size="20"
+                                                    class="mr-2"
+                                                >
+                                                    {{ getFileIcon(file.name) }}
+                                                </v-icon>
+                                                <span
+                                                    class="file-preview-name"
+                                                    >{{ file.name }}</span
+                                                >
+                                                <span class="file-preview-size">
+                                                    {{
+                                                        formatFileSize(
+                                                            file.size
+                                                        )
+                                                    }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </v-card>
+                                </div>
+
+                                <!-- Info Alert -->
                                 <v-alert
                                     type="info"
                                     variant="tonal"
                                     color="blue"
                                     density="compact"
-                                    class="mb-4"
+                                    class="mt-4 mb-4"
                                 >
                                     <template v-slot:prepend>
                                         <v-icon>mdi-information</v-icon>
                                     </template>
-                                    Maksimal ukuran file: 50MB. Format yang
-                                    didukung: JPG, PNG, PDF, DOC, PPT
+                                    <strong>Format yang didukung:</strong> JPG,
+                                    PNG, PDF, DOC, DOCX, PPT, PPTX<br />
+                                    <strong>Maksimal ukuran per file:</strong>
+                                    50MB<br />
+                                    <strong>Upload multiple:</strong> Bisa
+                                    upload banyak file sekaligus
                                 </v-alert>
 
+                                <!-- Upload Button -->
                                 <v-btn
                                     type="submit"
                                     color="purple"
@@ -398,7 +548,13 @@
                                     class="upload-btn"
                                 >
                                     <v-icon class="mr-2">mdi-upload</v-icon>
-                                    Upload File
+                                    Upload
+                                    {{
+                                        fileForm.files &&
+                                        fileForm.files.length > 0
+                                            ? `${fileForm.files.length} File`
+                                            : "File"
+                                    }}
                                 </v-btn>
                             </v-form>
                         </v-window-item>
@@ -674,59 +830,70 @@ const openUploadChoiceModal = async () => {
     }
 };
 
-const uploadFiles = () => {
-    if (!fileForm.files || fileForm.files.length === 0) return;
+// const uploadFiles = () => {
+//     if (!fileForm.files || fileForm.files.length === 0) return;
 
-    const maxSize = 50 * 1024 * 1024; // 50MB
-    for (let i = 0; i < fileForm.files.length; i++) {
-        const file = fileForm.files[i];
-        if (file.size > maxSize) {
-            Swal.fire({
-                icon: "error",
-                title: "File Terlalu Besar",
-                text: `File ${file.name} melebihi ukuran maksimal 50MB.`,
-            });
-            return;
-        }
-    }
+//     const maxSize = 50 * 1024 * 1024; // 50MB
+//     for (let i = 0; i < fileForm.files.length; i++) {
+//         const file = fileForm.files[i];
+//         if (file.size > maxSize) {
+//             Swal.fire({
+//                 icon: "error",
+//                 title: "File Terlalu Besar",
+//                 text: `File ${file.name} melebihi ukuran maksimal 50MB.`,
+//             });
+//             return;
+//         }
+//     }
 
-    showUploadChoiceModal.value = false;
-    showUploadProgressModal.value = true;
-    uploadProgress.value = 0;
+//     showUploadChoiceModal.value = false;
+//     showUploadProgressModal.value = true;
+//     uploadProgress.value = 0;
 
-    fileForm.post(route("files.store", props.node.id), {
-        forceFormData: true,
-        onProgress: (progressEvent) => {
-            if (progressEvent.lengthComputable) {
-                uploadProgress.value = Math.round(
-                    (progressEvent.loaded * 100) / progressEvent.total
-                );
-            }
-        },
-        onSuccess: (response) => {
-            if (response?.props?.node) {
-                props.node.files = response.props.node.files;
-            }
-            fileForm.reset();
-            Swal.fire({
-                icon: "success",
-                title: "Berhasil",
-                text: "File berhasil diunggah.",
-            });
-        },
-        onError: (errors) => {
-            Swal.fire({
-                icon: "error",
-                title: "Gagal Upload",
-                text:
-                    errors?.files?.[0] ||
-                    "Terjadi kesalahan saat mengupload file.",
-            });
-        },
-        onFinish: () => {
-            showUploadProgressModal.value = false;
-        },
-    });
+//     fileForm.post(route("files.store", props.node.id), {
+//         forceFormData: true,
+//         onProgress: (progressEvent) => {
+//             if (progressEvent.lengthComputable) {
+//                 uploadProgress.value = Math.round(
+//                     (progressEvent.loaded * 100) / progressEvent.total
+//                 );
+//             }
+//         },
+//         onSuccess: (response) => {
+//             if (response?.props?.node) {
+//                 props.node.files = response.props.node.files;
+//             }
+//             fileForm.reset();
+//             Swal.fire({
+//                 icon: "success",
+//                 title: "Berhasil",
+//                 text: "File berhasil diunggah.",
+//             });
+//         },
+//         onError: (errors) => {
+//             Swal.fire({
+//                 icon: "error",
+//                 title: "Gagal Upload",
+//                 text:
+//                     errors?.files?.[0] ||
+//                     "Terjadi kesalahan saat mengupload file.",
+//             });
+//         },
+//         onFinish: () => {
+//             showUploadProgressModal.value = false;
+//         },
+//     });
+// };
+
+// Format file size
+const formatFileSize = (bytes) => {
+    if (bytes === 0) return "0 Bytes";
+
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
 };
 
 const attachExistingFile = () => {
@@ -766,6 +933,186 @@ const openFileViewer = (file) => {
 const closeFileViewer = () => {
     showFileViewer.value = false;
     fileToView.value = {};
+};
+
+// ========================================
+// 1. TAMBAHKAN STATE BARU (di bagian script setup)
+// ========================================
+const isDragging = ref(false);
+const dragCounter = ref(0);
+
+// ========================================
+// 2. TAMBAHKAN METHODS UNTUK DRAG AND DROP
+// ========================================
+
+// Handle drag enter
+const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.value++;
+    if (dragCounter.value === 1) {
+        isDragging.value = true;
+    }
+};
+
+// Handle drag leave
+const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.value--;
+    if (dragCounter.value === 0) {
+        isDragging.value = false;
+    }
+};
+
+// Handle drag over
+const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+};
+
+// Handle drop
+const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    isDragging.value = false;
+    dragCounter.value = 0;
+
+    const files = Array.from(e.dataTransfer.files);
+
+    if (files.length === 0) return;
+
+    // Validasi file
+    const validExtensions = [
+        "jpg",
+        "jpeg",
+        "png",
+        "pdf",
+        "doc",
+        "docx",
+        "ppt",
+        "pptx",
+    ];
+    const maxSize = 50 * 1024 * 1024; // 50MB
+
+    const invalidFiles = [];
+    const validFiles = [];
+
+    files.forEach((file) => {
+        const ext = file.name.split(".").pop().toLowerCase();
+
+        if (!validExtensions.includes(ext)) {
+            invalidFiles.push({
+                name: file.name,
+                reason: "Format tidak didukung",
+            });
+        } else if (file.size > maxSize) {
+            invalidFiles.push({
+                name: file.name,
+                reason: "Ukuran melebihi 50MB",
+            });
+        } else {
+            validFiles.push(file);
+        }
+    });
+
+    // Tampilkan peringatan jika ada file invalid
+    if (invalidFiles.length > 0) {
+        const errorMessage = invalidFiles
+            .map((f) => `${f.name}: ${f.reason}`)
+            .join("\n");
+        Swal.fire({
+            icon: "warning",
+            title: "Beberapa File Tidak Valid",
+            html: `<div style="text-align: left; max-height: 200px; overflow-y: auto;">
+                ${invalidFiles
+                    .map(
+                        (f) =>
+                            `<p>• ${f.name}: <strong>${f.reason}</strong></p>`
+                    )
+                    .join("")}
+            </div>`,
+            confirmButtonText:
+                validFiles.length > 0 ? "Upload File Valid" : "OK",
+        });
+    }
+
+    // Upload file yang valid
+    if (validFiles.length > 0) {
+        fileForm.files = validFiles;
+        uploadFiles();
+    }
+};
+
+// Reset drag state when leaving window
+const resetDragState = () => {
+    isDragging.value = false;
+    dragCounter.value = 0;
+};
+
+// ========================================
+// 3. MODIFIKASI METHOD uploadFiles() YANG SUDAH ADA
+// ========================================
+const uploadFiles = () => {
+    if (!fileForm.files || fileForm.files.length === 0) return;
+
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    for (let i = 0; i < fileForm.files.length; i++) {
+        const file = fileForm.files[i];
+        if (file.size > maxSize) {
+            Swal.fire({
+                icon: "error",
+                title: "File Terlalu Besar",
+                text: `File ${file.name} melebihi ukuran maksimal 50MB.`,
+            });
+            return;
+        }
+    }
+
+    showUploadChoiceModal.value = false;
+    showUploadProgressModal.value = true;
+    uploadProgress.value = 0;
+
+    fileForm.post(route("files.store", props.node.id), {
+        forceFormData: true,
+        onProgress: (progressEvent) => {
+            if (progressEvent.lengthComputable) {
+                uploadProgress.value = Math.round(
+                    (progressEvent.loaded * 100) / progressEvent.total
+                );
+            }
+        },
+        onSuccess: (response) => {
+            if (response?.props?.node) {
+                props.node.files = response.props.node.files;
+            }
+            fileForm.reset();
+
+            // Pesan sukses yang lebih informatif
+            const fileCount = Array.isArray(fileForm.files)
+                ? fileForm.files.length
+                : 1;
+            Swal.fire({
+                icon: "success",
+                title: "Berhasil",
+                text: `${fileCount} file berhasil diunggah.`,
+            });
+        },
+        onError: (errors) => {
+            Swal.fire({
+                icon: "error",
+                title: "Gagal Upload",
+                text:
+                    errors?.files?.[0] ||
+                    "Terjadi kesalahan saat mengupload file.",
+            });
+        },
+        onFinish: () => {
+            showUploadProgressModal.value = false;
+            fileForm.files = null; // Reset files
+        },
+    });
 };
 
 // File utilities
@@ -1094,5 +1441,163 @@ const confirmDeleteFile = () => {
 
 .upload-window::-webkit-scrollbar-thumb:hover {
     background: rgba(183, 148, 246, 0.7);
+}
+
+/* Drop Zone Styles */
+.drop-zone {
+    border: 3px dashed #d1d5db;
+    border-radius: 16px;
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: linear-gradient(
+        135deg,
+        rgba(183, 148, 246, 0.02),
+        rgba(248, 244, 255, 0.5)
+    );
+    position: relative;
+    overflow: hidden;
+}
+
+.drop-zone::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        circle at center,
+        rgba(183, 148, 246, 0.05),
+        transparent
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.drop-zone:hover {
+    border-color: #b794f6;
+    background: linear-gradient(
+        135deg,
+        rgba(183, 148, 246, 0.08),
+        rgba(248, 244, 255, 0.8)
+    );
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(183, 148, 246, 0.15);
+}
+
+.drop-zone:hover::before {
+    opacity: 1;
+}
+
+.drop-zone-active {
+    border-color: #9333ea !important;
+    background: linear-gradient(
+        135deg,
+        rgba(183, 148, 246, 0.15),
+        rgba(248, 244, 255, 1)
+    ) !important;
+    transform: scale(1.02);
+    box-shadow: 0 12px 32px rgba(183, 148, 246, 0.25) !important;
+}
+
+.drop-zone-active::before {
+    opacity: 1;
+}
+
+.drop-zone-content {
+    position: relative;
+    z-index: 1;
+}
+
+/* File List Preview */
+.file-list-preview {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.file-preview-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.file-preview-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(183, 148, 246, 0.05);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.file-preview-item:hover {
+    background: rgba(183, 148, 246, 0.1);
+    transform: translateX(4px);
+}
+
+.file-preview-name {
+    flex: 1;
+    font-size: 0.875rem;
+    color: #374151;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: 12px;
+}
+
+.file-preview-size {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: 500;
+    background: rgba(183, 148, 246, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+/* Custom scrollbar for file list */
+.file-list-preview::-webkit-scrollbar {
+    width: 6px;
+}
+
+.file-list-preview::-webkit-scrollbar-track {
+    background: rgba(183, 148, 246, 0.1);
+    border-radius: 3px;
+}
+
+.file-list-preview::-webkit-scrollbar-thumb {
+    background: rgba(183, 148, 246, 0.5);
+    border-radius: 3px;
+}
+
+.file-list-preview::-webkit-scrollbar-thumb:hover {
+    background: rgba(183, 148, 246, 0.7);
+}
+
+/* Animation for drag effect */
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.drop-zone-active .drop-zone-content {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .drop-zone {
+        padding: 32px 16px;
+    }
+
+    .file-preview-name {
+        font-size: 0.8125rem;
+    }
 }
 </style>
