@@ -55,4 +55,16 @@ class PublicController extends Controller
             'year' => (int) $year,
         ]);
     }
+
+    public function verify(Request $request)
+    {
+        $password = $request->input('password');
+        $correct = env('PUBLIC_ACCESS_PASSWORD');
+
+        if ($password === $correct) {
+            return response()->json(['status' => 'success']);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Password salah'], 401);
+    }
 }

@@ -51,6 +51,8 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/show', [PublicController::class, 'index'])->name('show.index');
 
+Route::post('/verify-password', [PublicController::class, 'verify'])->name('verify.password');
+
 Route::get('/show/nodes', [PublicController::class, 'index'])->name('show.nodes');
 
 
