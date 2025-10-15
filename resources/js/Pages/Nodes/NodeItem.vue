@@ -612,7 +612,7 @@
             </v-card>
         </v-dialog>
 
-        <!-- File Viewer Modal -->
+        <!-- File Viewer Modal - BAGIAN YANG DIUBAH -->
         <v-dialog v-model="showFileViewer" max-width="900">
             <v-card class="file-viewer-modal">
                 <v-card-title
@@ -629,6 +629,7 @@
                 <v-divider></v-divider>
 
                 <v-card-text class="pa-0">
+                    <!-- Image Viewer -->
                     <div
                         v-if="isImage(fileToView.file_name)"
                         class="image-viewer"
@@ -639,6 +640,8 @@
                             max-height="600"
                         ></v-img>
                     </div>
+
+                    <!-- PDF Viewer -->
                     <div
                         v-else-if="isPdf(fileToView.file_name)"
                         class="pdf-viewer"
@@ -650,6 +653,94 @@
                             style="border: none"
                         ></iframe>
                     </div>
+
+                    <!-- DOC/DOCX Viewer - BAGIAN BARU -->
+                    <!-- DOCX Viewer dengan Mammoth.js - BAGIAN BARU -->
+                    <div
+                        v-else-if="isDocx(fileToView.file_name)"
+                        class="docx-viewer"
+                    >
+                        <div id="docx-container" class="pa-6"></div>
+                        <div v-if="docxLoading" class="text-center pa-8">
+                            <v-progress-circular
+                                indeterminate
+                                color="purple"
+                                size="64"
+                            ></v-progress-circular>
+                            <p class="mt-4 text-grey">Memuat dokumen...</p>
+                        </div>
+                        <div
+                            v-else-if="docxContent"
+                            class="docx-content pa-6"
+                            v-html="docxContent"
+                        ></div>
+                        <div v-else-if="docxError" class="text-center pa-8">
+                            <v-icon
+                                size="64"
+                                color="red-lighten-2"
+                                class="mb-4"
+                            >
+                                mdi-alert-circle
+                            </v-icon>
+                            <h3 class="text-h6 text-grey mb-2">
+                                Gagal memuat dokumen
+                            </h3>
+                            <p class="text-grey mb-4">{{ docxError }}</p>
+                            <v-btn
+                                :href="`/storage/${fileToView.file_path}`"
+                                target="_blank"
+                                color="blue"
+                                variant="elevated"
+                                download
+                            >
+                                <v-icon class="mr-2">mdi-download</v-icon>
+                                Download File
+                            </v-btn>
+                        </div>
+                    </div>
+
+                    <!-- PPT/PPTX Viewer - BAGIAN BARU -->
+                    <div
+                        v-else-if="isPpt(fileToView.file_name)"
+                        class="ppt-viewer"
+                    >
+                        <iframe
+                            :src="getPptViewerUrl(fileToView.file_path)"
+                            width="100%"
+                            height="600"
+                            style="border: none"
+                            @error="handleViewerError"
+                        ></iframe>
+                        <div class="viewer-fallback" v-if="viewerError">
+                            <div class="text-center pa-8">
+                                <v-icon
+                                    size="64"
+                                    color="grey-lighten-2"
+                                    class="mb-4"
+                                >
+                                    mdi-file-powerpoint-box
+                                </v-icon>
+                                <h3 class="text-h6 text-grey mb-2">
+                                    Tidak dapat menampilkan preview
+                                </h3>
+                                <p class="text-grey mb-4">
+                                    Silakan download file untuk melihat isinya
+                                </p>
+                                <v-btn
+                                    :href="`/storage/${fileToView.file_path}`"
+                                    target="_blank"
+                                    color="orange"
+                                    variant="elevated"
+                                    download
+                                >
+                                    <v-icon class="mr-2">mdi-download</v-icon>
+                                    Download File
+                                </v-btn>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Unsupported Preview -->
                     <div v-else class="unsupported-preview">
                         <div class="text-center pa-8">
                             <v-icon
@@ -670,6 +761,7 @@
                                 target="_blank"
                                 color="blue"
                                 variant="elevated"
+                                download
                             >
                                 <v-icon class="mr-2">mdi-download</v-icon>
                                 Download & Buka File
@@ -701,7 +793,7 @@
 
 <script setup>
 defineOptions({ name: "NodeItem" });
-
+import { renderAsync } from "docx-preview";
 import { ref, computed, nextTick } from "vue";
 import { useForm, router } from "@inertiajs/vue3";
 import ConfirmDialog from "@/Components/ConfirmDialog.vue";
@@ -932,11 +1024,6 @@ const cancelUpload = () => {
 const showFileViewer = ref(false);
 const fileToView = ref({});
 
-const openFileViewer = (file) => {
-    fileToView.value = file;
-    showFileViewer.value = true;
-};
-
 const closeFileViewer = () => {
     showFileViewer.value = false;
     fileToView.value = {};
@@ -1124,11 +1211,34 @@ const uploadFiles = () => {
     });
 };
 
+// DOCX Viewer States - TAMBAHKAN INI
+const docxContent = ref("");
+const docxLoading = ref(false);
+const docxError = ref("");
+
 // File utilities
 const isImage = (fileName) => /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName);
 const isPdf = (fileName) => /\.pdf$/i.test(fileName);
 const isPpt = (fileName) => /\.(ppt|pptx)$/i.test(fileName);
-const isDoc = (fileName) => /\.(doc|docx)$/i.test(fileName);
+const isDocx = (fileName) => /\.docx$/i.test(fileName); // TAMBAHKAN
+const isDoc = (fileName) => /\.doc$/i.test(fileName);
+
+// Load DOCX Content - TAMBAHKAN METHOD INI
+
+const loadDocxContent = async (filePath) => {
+    docxLoading.value = true;
+    try {
+        const response = await fetch(`/storage/${filePath}`);
+        const blob = await response.blob();
+
+        const container = document.getElementById("docx-container");
+        await renderAsync(blob, container);
+    } catch (error) {
+        //docxError.value = error.message;
+    } finally {
+        docxLoading.value = false;
+    }
+};
 
 const getFileIcon = (fileName) => {
     const ext = fileName.split(".").pop().toLowerCase();
@@ -1203,9 +1313,163 @@ const confirmDeleteFile = () => {
         },
     });
 };
+
+// Tambahkan state untuk error handling
+const viewerError = ref(false);
+
+// Method untuk generate URL viewer - TAMBAHKAN INI
+const getDocViewerUrl = (filePath) => {
+    // Gunakan preview token untuk generate public URL
+    const publicUrl = route(
+        "files.public-preview",
+        fileToView.value.preview_token
+    );
+
+    // Google Docs Viewer
+    return `https://docs.google.com/viewer?url=${encodeURIComponent(
+        publicUrl
+    )}&embedded=true`;
+
+    // ATAU Microsoft Office Viewer (kadang lebih baik untuk DOC/PPT)
+    // return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(publicUrl)}`;
+};
+
+const getPptViewerUrl = (filePath) => {
+    const fullUrl = `${window.location.origin}/storage/${filePath}`;
+    // Microsoft Office Online lebih baik untuk PPT
+    return `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(
+        fullUrl
+    )}`;
+};
+
+const handleViewerError = () => {
+    viewerError.value = true;
+};
+
+// Update method openFileViewer
+const openFileViewer = async (file) => {
+    fileToView.value = file;
+    viewerError.value = false;
+    showFileViewer.value = true;
+
+    // Jika DOCX, load konten
+    if (isDocx(file.file_name)) {
+        await loadDocxContent(file.file_path);
+    }
+};
 </script>
 
 <style scoped>
+/* DOCX Viewer Styles - TAMBAHKAN INI */
+.docx-viewer {
+    background: #f5f5f5;
+    min-height: 600px;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.docx-content {
+    background: white;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 48px;
+    min-height: 600px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Styling untuk konten DOCX */
+.docx-content >>> h1 {
+    font-size: 2em;
+    font-weight: bold;
+    margin-top: 24px;
+    margin-bottom: 16px;
+    color: #1a202c;
+}
+
+.docx-content >>> h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 12px;
+    color: #2d3748;
+}
+
+.docx-content >>> h3 {
+    font-size: 1.25em;
+    font-weight: bold;
+    margin-top: 16px;
+    margin-bottom: 10px;
+    color: #4a5568;
+}
+
+.docx-content >>> p {
+    margin-bottom: 12px;
+    line-height: 1.6;
+    color: #4a5568;
+}
+
+.docx-content >>> ul,
+.docx-content >>> ol {
+    margin-left: 24px;
+    margin-bottom: 12px;
+}
+
+.docx-content >>> li {
+    margin-bottom: 6px;
+    line-height: 1.6;
+}
+
+.docx-content >>> table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+}
+
+.docx-content >>> table td,
+.docx-content >>> table th {
+    border: 1px solid #e2e8f0;
+    padding: 8px 12px;
+}
+
+.docx-content >>> table th {
+    background-color: #f7fafc;
+    font-weight: bold;
+}
+
+.docx-content >>> strong,
+.docx-content >>> b {
+    font-weight: bold;
+}
+
+.docx-content >>> em,
+.docx-content >>> i {
+    font-style: italic;
+}
+
+.docx-content >>> img {
+    max-width: 100%;
+    height: auto;
+    margin: 16px 0;
+}
+
+/* Scrollbar untuk docx viewer */
+.docx-viewer::-webkit-scrollbar {
+    width: 8px;
+}
+
+.docx-viewer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.docx-viewer::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.docx-viewer::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
 /* Node Item Container */
 .node-item {
     margin-bottom: 16px;
