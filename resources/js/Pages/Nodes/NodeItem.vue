@@ -1078,16 +1078,7 @@ const handleDrop = (e) => {
     if (files.length === 0) return;
 
     // Validasi file
-    const validExtensions = [
-        "jpg",
-        "jpeg",
-        "png",
-        "pdf",
-        "doc",
-        "docx",
-        "ppt",
-        "pptx",
-    ];
+    const validExtensions = ["jpg", "jpeg", "png", "pdf", "docx"];
     const maxSize = 50 * 1024 * 1024; // 50MB
 
     const invalidFiles = [];
