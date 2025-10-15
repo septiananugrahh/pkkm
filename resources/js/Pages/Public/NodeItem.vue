@@ -250,7 +250,7 @@
                 </div>
 
                 <!-- Modal Content -->
-                <div class="p-6 bg-gray-50 min-h-[400px]">
+                <div class="modal-content-wrapper">
                     <!-- Image Preview -->
                     <div
                         v-if="isImage(fileToView.file_name)"
@@ -266,15 +266,70 @@
                     <!-- PDF Preview -->
                     <div
                         v-else-if="isPdf(fileToView.file_name)"
-                        class="bg-white rounded-xl overflow-hidden shadow-sm"
+                        class="bg-white overflow-hidden shadow-sm"
                     >
                         <iframe
                             :src="`/storage/${fileToView.file_path}`"
                             width="100%"
                             height="600px"
                             style="border: none"
-                            class="rounded-xl"
                         ></iframe>
+                    </div>
+
+                    <!-- DOCX Preview - DIPERBAIKI -->
+                    <div
+                        v-else-if="isDocx(fileToView.file_name)"
+                        class="docx-viewer"
+                    >
+                        <div id="docx-container" class="pa-6"></div>
+
+                        <!-- Loading State -->
+                        <div v-if="docxLoading" class="docx-loading">
+                            <v-progress-circular
+                                indeterminate
+                                color="purple"
+                                size="64"
+                            ></v-progress-circular>
+                            <p class="mt-4 text-grey-darken-1">
+                                Memuat dokumen...
+                            </p>
+                        </div>
+
+                        <!-- DOCX Content -->
+                        <div
+                            v-else-if="docxContent"
+                            class="docx-content-wrapper"
+                        >
+                            <div
+                                class="docx-content"
+                                v-html="docxContent"
+                            ></div>
+                        </div>
+
+                        <!-- Error State -->
+                        <div v-else-if="docxError" class="docx-error">
+                            <v-icon
+                                size="64"
+                                color="red-lighten-2"
+                                class="mb-4"
+                            >
+                                mdi-alert-circle
+                            </v-icon>
+                            <h3 class="text-h6 text-grey mb-2">
+                                Gagal memuat dokumen
+                            </h3>
+                            <p class="text-grey mb-4">{{ docxError }}</p>
+                            <v-btn
+                                :href="`/storage/${fileToView.file_path}`"
+                                target="_blank"
+                                color="blue"
+                                variant="elevated"
+                                download
+                            >
+                                <v-icon class="mr-2">mdi-download</v-icon>
+                                Download File
+                            </v-btn>
+                        </div>
                     </div>
 
                     <!-- No Preview Available -->
@@ -312,6 +367,7 @@
 
 <script setup>
 defineOptions({ name: "PublicNodeItem" });
+import { renderAsync } from "docx-preview";
 
 import { ref, computed } from "vue";
 
@@ -328,6 +384,10 @@ function toggle() {
     expanded.value = !expanded.value;
 }
 
+const docxContent = ref("");
+const docxLoading = ref(false);
+const docxError = ref("");
+
 function isImage(fileName) {
     return /\.(jpg|jpeg|png|gif|webp|svg|bmp)$/i.test(fileName);
 }
@@ -335,6 +395,8 @@ function isImage(fileName) {
 function isPdf(fileName) {
     return /\.pdf$/i.test(fileName);
 }
+
+const isDocx = (fileName) => /\.docx$/i.test(fileName); // TAMBAHKAN
 
 function getFileIcon(fileName) {
     if (isImage(fileName)) return "mdi-image";
@@ -370,10 +432,29 @@ function getFileTypeClass(fileName) {
 const showFileViewer = ref(false);
 const fileToView = ref({});
 
-function openFileViewer(file) {
+const loadDocxContent = async (filePath) => {
+    docxLoading.value = true;
+    try {
+        const response = await fetch(`/storage/${filePath}`);
+        const blob = await response.blob();
+
+        const container = document.getElementById("docx-container");
+        await renderAsync(blob, container);
+    } catch (error) {
+        //docxError.value = error.message;
+    } finally {
+        docxLoading.value = false;
+    }
+};
+
+const openFileViewer = async (file) => {
     fileToView.value = file;
     showFileViewer.value = true;
-}
+
+    if (isDocx(file.file_name)) {
+        await loadDocxContent(file.file_path);
+    }
+};
 
 function closeFileViewer() {
     showFileViewer.value = false;
@@ -436,5 +517,242 @@ function closeFileViewer() {
 /* Border Animations */
 .hover\:border-indigo-300:hover {
     border-color: rgb(165 180 252);
+}
+
+/* Modal Content Wrapper */
+.modal-content-wrapper {
+    padding: 24px;
+    background: #f9fafb;
+    min-height: 400px;
+}
+
+/* Loading State */
+.docx-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+
+/* Error State */
+.docx-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    text-align: center;
+    padding: 32px;
+}
+
+/* DOCX Content Wrapper */
+.docx-content-wrapper {
+    background: white;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+    padding: 48px 24px;
+}
+
+/* DOCX Content */
+.docx-content {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 48px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+}
+
+/* Deep Selectors untuk konten v-html */
+.docx-content :deep(h1) {
+    font-size: 2em;
+    font-weight: bold;
+    margin-top: 24px;
+    margin-bottom: 16px;
+    color: #1a202c;
+    line-height: 1.3;
+}
+
+.docx-content :deep(h2) {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 12px;
+    color: #2d3748;
+    line-height: 1.3;
+}
+
+.docx-content :deep(h3) {
+    font-size: 1.25em;
+    font-weight: bold;
+    margin-top: 16px;
+    margin-bottom: 10px;
+    color: #4a5568;
+    line-height: 1.3;
+}
+
+.docx-content :deep(p) {
+    margin-bottom: 12px;
+    line-height: 1.8;
+    color: #4a5568;
+    text-align: justify;
+}
+
+.docx-content :deep(ul),
+.docx-content :deep(ol) {
+    margin-left: 24px;
+    margin-bottom: 16px;
+    padding-left: 8px;
+}
+
+.docx-content :deep(li) {
+    margin-bottom: 8px;
+    line-height: 1.8;
+}
+
+.docx-content :deep(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 0.95em;
+}
+
+.docx-content :deep(table td),
+.docx-content :deep(table th) {
+    border: 1px solid #e2e8f0;
+    padding: 10px 14px;
+    text-align: left;
+}
+
+.docx-content :deep(table th) {
+    background-color: #f7fafc;
+    font-weight: bold;
+    color: #2d3748;
+}
+
+.docx-content :deep(table tr:nth-child(even)) {
+    background-color: #f9fafb;
+}
+
+.docx-content :deep(strong),
+.docx-content :deep(b) {
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.docx-content :deep(em),
+.docx-content :deep(i) {
+    font-style: italic;
+}
+
+.docx-content :deep(u) {
+    text-decoration: underline;
+}
+
+.docx-content :deep(img) {
+    max-width: 100%;
+    height: auto;
+    margin: 20px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.docx-content :deep(a) {
+    color: #4c51bf;
+    text-decoration: none;
+    border-bottom: 1px solid #4c51bf;
+    transition: all 0.2s;
+}
+
+.docx-content :deep(a:hover) {
+    color: #5a67d8;
+    border-bottom-color: #5a67d8;
+}
+
+.docx-content :deep(blockquote) {
+    border-left: 4px solid #4c51bf;
+    padding-left: 20px;
+    margin: 20px 0;
+    font-style: italic;
+    color: #718096;
+}
+
+.docx-content :deep(code) {
+    background-color: #f7fafc;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: "Courier New", monospace;
+    font-size: 0.9em;
+    color: #e53e3e;
+}
+
+.docx-content :deep(pre) {
+    background-color: #2d3748;
+    color: #e2e8f0;
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 20px 0;
+}
+
+.docx-content :deep(pre code) {
+    background: none;
+    color: inherit;
+    padding: 0;
+}
+
+/* Custom Scrollbar */
+.docx-content-wrapper::-webkit-scrollbar {
+    width: 10px;
+}
+
+.docx-content-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 5px;
+}
+
+.docx-content-wrapper::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #4c51bf, #667eea);
+    border-radius: 5px;
+}
+
+.docx-content-wrapper::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #434190, #5a67d8);
+}
+
+/* Animation */
+.docx-content-wrapper {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.docx-viewer {
+    background: #f5f5f5;
+    min-height: 600px;
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .docx-content {
+        padding: 24px 16px;
+    }
+
+    .docx-content-wrapper {
+        padding: 24px 12px;
+    }
 }
 </style>

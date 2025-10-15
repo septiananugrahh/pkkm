@@ -613,7 +613,7 @@
         </v-dialog>
 
         <!-- File Viewer Modal - BAGIAN YANG DIUBAH -->
-        <v-dialog v-model="showFileViewer" max-width="900">
+        <v-dialog v-model="showFileViewer" max-width="1000">
             <v-card class="file-viewer-modal">
                 <v-card-title
                     class="d-flex align-center pa-4 bg-blue-lighten-5"
