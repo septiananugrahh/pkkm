@@ -311,31 +311,37 @@ const props = defineProps({
 
 // Statistics computed
 const totalNodes = computed(() => {
-    const countNodes = (nodes) => {
+    const countLeafNodes = (nodes) => {
         let count = 0;
         nodes.forEach((node) => {
-            count += 1;
-            if (node.children && node.children.length > 0) {
-                count += countNodes(node.children);
+            // Only count if node has no children (leaf node)
+            if (!node.children || node.children.length === 0) {
+                count += 1;
+            } else {
+                // Recursively count leaf nodes in children
+                count += countLeafNodes(node.children);
             }
         });
         return count;
     };
-    return countNodes(props.nodes || []);
+    return countLeafNodes(props.nodes || []);
 });
 
 const completedNodes = computed(() => {
-    const countCompleted = (nodes) => {
+    const countCompletedLeafNodes = (nodes) => {
         let count = 0;
         nodes.forEach((node) => {
-            if (node.is_completed) count += 1;
-            if (node.children && node.children.length > 0) {
-                count += countCompleted(node.children);
+            // Only count completed leaf nodes
+            if (!node.children || node.children.length === 0) {
+                if (node.is_completed) count += 1;
+            } else {
+                // Recursively count completed leaf nodes in children
+                count += countCompletedLeafNodes(node.children);
             }
         });
         return count;
     };
-    return countCompleted(props.nodes || []);
+    return countCompletedLeafNodes(props.nodes || []);
 });
 
 const pendingNodes = computed(() => {
